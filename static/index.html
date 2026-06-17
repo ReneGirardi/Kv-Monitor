@@ -68,7 +68,65 @@
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
   .cursor{animation:blink 1s infinite;color:#F39C12}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+async function startFullReport(){
+  const kvResult = results["kv"];
+  if(!kvResult || !kvResult.text){
+    document.getElementById("fullreport-empty").innerHTML = '<div style="text-align:center;padding:40px;color:#E74C3C">Bitte zuerst „Jetzt prüfen" ausführen.</div>';
+    return;
+  }
+  const content = document.getElementById("fullreport-content");
+  const status = document.getElementById("fullreport-status");
+  const empty = document.getElementById("fullreport-empty");
+
+  content.style.display = "block";
+  content.textContent = "";
+  empty.style.display = "none";
+  status.textContent = "⏳ Vollbericht wird generiert...";
+
+  try {
+    const response = await fetch("/api/fullreport_stream", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        api_key: getApiKey(),
+        area_text: kvResult.text,
+        area_label: "KV Hotellerie & Gastronomie"
+      })
+    });
+
+    if(!response.ok) throw new Error("Server Fehler: " + response.status);
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+      for(const line of lines){
+        if(line.startsWith("data: ")){
+          try{
+            const evt = JSON.parse(line.slice(6));
+            if(evt.text) content.textContent += evt.text;
+            if(evt.done){ status.textContent = "✓ Fertig"; }
+            if(evt.error){ status.textContent = "✗ " + evt.error; }
+          } catch(e){}
+        }
+      }
+      content.scrollTop = content.scrollHeight;
+    }
+    status.textContent = "✓ Vollbericht fertig";
+  } catch(e){
+    status.textContent = "✗ Fehler: " + e.message;
+    content.textContent += "\n\nFehler: " + e.message;
+  }
+}
+
+</script>
 </head>
 <body>
 <header>
@@ -120,6 +178,7 @@
       <button class="tab active" onclick="switchTab('report')">📋 Report</button>
       <button class="tab" onclick="switchTab('logs')">🖥 Agent-Log</button>
       <button class="tab" onclick="switchTab('areas')">🔬 Detailanalyse</button>
+      <button class="tab" onclick="switchTab('fullreport')">📄 Vollbericht</button>
     </div>
     <div id="tab-report">
       <div id="report-loading" class="waiting"><div style="font-size:28px;margin-bottom:10px">⚙️</div>Agent läuft – wechsle zu „Agent-Log" für Live-Updates</div>
@@ -130,6 +189,18 @@
     </div>
     <div id="tab-areas" style="display:none">
       <div id="areas-content"></div>
+    </div>
+    <div id="tab-fullreport" style="display:none">
+      <div id="fullreport-controls" style="margin-bottom:16px">
+        <div style="font-size:11px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Bereich auswählen (Testmodus: KV)</div>
+        <button onclick="startFullReport()" style="background:#C0392B;color:#fff;border:none;padding:11px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">📄 Vollbericht generieren</button>
+        <span id="fullreport-status" style="font-size:12px;color:#8A99AA;margin-left:12px"></span>
+      </div>
+      <div id="fullreport-content" style="background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:20px;font-size:13px;line-height:1.8;color:#C5D0DC;min-height:200px;white-space:pre-wrap;word-break:break-word;display:none"></div>
+      <div id="fullreport-empty" style="text-align:center;padding:40px;color:#8A99AA">
+        <div style="font-size:28px;margin-bottom:10px">📄</div>
+        <div>Erst „Jetzt prüfen" starten, dann Vollbericht generieren</div>
+      </div>
     </div>
   </div>
 </main>
@@ -194,8 +265,8 @@ function addLog(text, color){
 }
 
 function switchTab(name){
-  ["report","logs","areas"].forEach(n=>{document.getElementById("tab-"+n).style.display=n===name?"block":"none"});
-  document.querySelectorAll(".tab").forEach((b,i)=>{b.classList.toggle("active",["report","logs","areas"][i]===name)});
+  ["report","logs","areas","fullreport"].forEach(n=>{document.getElementById("tab-"+n).style.display=n===name?"block":"none"});
+  document.querySelectorAll(".tab").forEach((b,i)=>{b.classList.toggle("active",["report","logs","areas","fullreport"][i]===name)});
 }
 
 // ── Claude API call (direct from browser via server proxy) ──────────────────
@@ -445,7 +516,12 @@ async function startAgent(){
   addLog("📋 Executive Report wird generiert...","#7EC8E3");
 
   try{
-    const combined=AREAS.map(a=>`=== ${a.label} ===\nPrio: ${results[a.id]?.prio}\n${results[a.id]?.text}`).join("\n\n");
+    // Truncate each area text to keep prompt short
+    const combined=AREAS.map(a=>{
+      const r=results[a.id]||{};
+      const short=(r.text||"Keine Daten").slice(0,400);
+      return `=== ${a.label} ===\nPrio: ${r.prio||"?"}\n${short}`;
+    }).join("\n\n---\n");
     const json = await callClaude(
       `Erstelle Executive Report aus:\n\n${combined}\n\nAntworte NUR als reines JSON ohne Backticks:\n{"zusammenfassung":"...","gesamtrisiko":"KRITISCH|HOCH|MITTEL|INFO","bereiche":[{"id":"kv|elda|bgbl|eu","prio":"...","headline":"...","befund":"...","auswirkung":"...","aktion":"...","deadline":"..."}],"sofort":["...","...","..."],"naechste_pruefung":"..."}`,
       "Senior Payroll Compliance Officer Österreich. Antworte NUR als reines JSON, kein Text davor oder danach, keine Backticks.",
@@ -463,6 +539,64 @@ async function startAgent(){
     document.getElementById("status-badge").innerHTML='<span class="badge badge-error">✗ FEHLER</span>';
   }
 }
+
+async function startFullReport(){
+  const kvResult = results["kv"];
+  if(!kvResult || !kvResult.text){
+    document.getElementById("fullreport-empty").innerHTML = '<div style="text-align:center;padding:40px;color:#E74C3C">Bitte zuerst „Jetzt prüfen" ausführen.</div>';
+    return;
+  }
+  const content = document.getElementById("fullreport-content");
+  const status = document.getElementById("fullreport-status");
+  const empty = document.getElementById("fullreport-empty");
+
+  content.style.display = "block";
+  content.textContent = "";
+  empty.style.display = "none";
+  status.textContent = "⏳ Vollbericht wird generiert...";
+
+  try {
+    const response = await fetch("/api/fullreport_stream", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        api_key: getApiKey(),
+        area_text: kvResult.text,
+        area_label: "KV Hotellerie & Gastronomie"
+      })
+    });
+
+    if(!response.ok) throw new Error("Server Fehler: " + response.status);
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+      for(const line of lines){
+        if(line.startsWith("data: ")){
+          try{
+            const evt = JSON.parse(line.slice(6));
+            if(evt.text) content.textContent += evt.text;
+            if(evt.done){ status.textContent = "✓ Fertig"; }
+            if(evt.error){ status.textContent = "✗ " + evt.error; }
+          } catch(e){}
+        }
+      }
+      content.scrollTop = content.scrollHeight;
+    }
+    status.textContent = "✓ Vollbericht fertig";
+  } catch(e){
+    status.textContent = "✗ Fehler: " + e.message;
+    content.textContent += "\n\nFehler: " + e.message;
+  }
+}
+
 </script>
 </body>
 </html>
