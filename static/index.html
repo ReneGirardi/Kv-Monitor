@@ -56,11 +56,9 @@
   @media(min-width:600px){.detail-grid{grid-template-columns:1fr 1fr 1fr}}
   .detail-label{font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
   .detail-val{font-size:12px;line-height:1.5;color:#C5D0DC}
-  .email-box{background:#1A2E45;border:1px solid #2E4060;border-radius:10px;padding:16px;margin-top:10px}
-  .email-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  input[type=email]{flex:1;min-width:180px;background:#0D1B2A;border:1px solid #2E4060;border-radius:6px;padding:9px 12px;color:#F7F5F0;font-size:13px;outline:none;-webkit-appearance:none}
-  .btn-red{background:#C0392B;color:#fff;border:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
-  .btn-sec{background:#243B55;color:#F7F5F0;border:1px solid #2E4060;padding:9px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .pdf-box{background:#1A2E45;border:1px solid #2E4060;border-radius:10px;padding:16px;margin-top:10px;text-align:center}
+  .btn-pdf{background:#C0392B;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+  .btn-pdf:active{background:#E74C3C}
   .rerun{text-align:center;margin-top:22px}
   .terminal{background:#080E16;border-radius:10px;border:1px solid #2E4060;padding:14px;font-family:'Courier New',monospace;font-size:12px;min-height:340px;max-height:480px;overflow-y:auto}
   .log-ts{color:#3D5066;margin-right:8px}
@@ -70,6 +68,7 @@
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
   .cursor{animation:blink 1s infinite;color:#F39C12}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <header>
@@ -280,40 +279,127 @@ function renderReport(rep){
     <div class="card" style="margin-bottom:14px"><div class="card-label">Executive Summary</div><p style="font-size:13px;line-height:1.7">${rep.zusammenfassung}</p></div>
     <div class="sofort-box"><div class="sofort-label">⚡ Sofortmaßnahmen</div>${sofort}</div>
     ${bereiche}
-    <div class="email-box">
-      <div class="card-label">📧 Report versenden</div>
-      <div class="email-row">
-        <input type="email" id="email-input" placeholder="empfaenger@firma.at">
-        <button class="btn-red" onclick="sendEmail()">📧 Senden</button>
-        <button class="btn-sec" id="copy-btn" onclick="copyReport()">📋 Kopieren</button>
-      </div>
+    <div class="pdf-box">
+      <div class="card-label" style="margin-bottom:10px">📄 Report exportieren</div>
+      <button class="btn-pdf" onclick="downloadPDF()">⬇ PDF herunterladen</button>
     </div>
     <div class="rerun"><button class="btn-primary" onclick="startAgent()">↺ Erneut prüfen</button></div>`;
   document.getElementById("report-loading").style.display="none";
   document.getElementById("report-content").style.display="block";
 }
 
-function buildEmailText(){
-  if(!currentReport)return"";
-  const d=new Date().toLocaleDateString("de-AT");
-  let t=`KV-Monitor Report – ${d}\nGesamtrisiko: ${currentReport.gesamtrisiko}\n\n${currentReport.zusammenfassung}\n\nSOFORTMASSNAHMEN\n`;
-  currentReport.sofort.forEach((s,i)=>{t+=`${i+1}. ${s}\n`;});
-  t+="\nBEREICHE\n";
-  currentReport.bereiche.forEach(b=>{t+=`\n[${b.prio}] ${b.headline}\nBefund: ${b.befund}\nAuswirkung: ${b.auswirkung}\nAktion: ${b.aktion} | ${b.deadline}\n`;});
-  t+=`\nNächste Prüfung: ${currentReport.naechste_pruefung}\n\n— KV-Monitor Agent`;
-  return t;
-}
+function downloadPDF(){
+  if(!currentReport) return;
+  const d = new Date().toLocaleDateString("de-AT");
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
+  const W = 210, M = 15, CW = W - 2*M;
+  let y = 15;
 
-function sendEmail(){
-  const addr=document.getElementById("email-input")?.value||"";
-  const sub=encodeURIComponent(`KV-Monitor Report ${new Date().toLocaleDateString("de-AT")} – ${currentReport?.gesamtrisiko}`);
-  window.location.href=`mailto:${encodeURIComponent(addr)}?subject=${sub}&body=${encodeURIComponent(buildEmailText())}`;
-}
+  function addLine(text, size, bold, color){
+    doc.setFontSize(size||11);
+    doc.setFont("helvetica", bold?"bold":"normal");
+    doc.setTextColor(...(color||[245,245,240]));
+    const lines = doc.splitTextToSize(String(text||""), CW);
+    lines.forEach(l => {
+      if(y > 275){ doc.addPage(); y = 15; drawBg(); }
+      doc.text(l, M, y);
+      y += size ? size*0.45 : 5;
+    });
+  }
 
-async function copyReport(){
-  await navigator.clipboard.writeText(buildEmailText());
-  const btn=document.getElementById("copy-btn");
-  if(btn){btn.textContent="✓ Kopiert";btn.style.color="#27AE60";setTimeout(()=>{btn.textContent="📋 Kopieren";btn.style.color="";},2000);}
+  function drawBg(){ doc.setFillColor(13,27,42); doc.rect(0,0,210,297,"F"); }
+  function rule(col){ doc.setDrawColor(...(col||[46,64,96])); doc.setLineWidth(0.3); doc.line(M,y,W-M,y); y+=4; }
+
+  drawBg();
+
+  // Header
+  doc.setFillColor(192,57,43);
+  doc.roundedRect(M, y-4, 12, 12, 2, 2, "F");
+  doc.setFontSize(14); doc.setTextColor(255,255,255); doc.setFont("helvetica","bold");
+  doc.text("KV", M+2, y+4);
+  doc.setFontSize(16); doc.setTextColor(247,245,240);
+  doc.text("KV-Monitor Agent", M+16, y+4);
+  doc.setFontSize(9); doc.setTextColor(138,153,170); doc.setFont("helvetica","normal");
+  doc.text("Hotellerie & Gastronomie · Payroll Compliance AT", M+16, y+9);
+  y += 18;
+  rule();
+
+  // Risk
+  const pm = {KRITISCH:[192,57,43], HOCH:[230,126,18], MITTEL:[52,152,219], INFO:[138,153,170]};
+  const rc = pm[currentReport.gesamtrisiko]||pm.MITTEL;
+  doc.setFillColor(...rc);
+  doc.roundedRect(M, y, CW, 14, 2, 2, "F");
+  doc.setFontSize(9); doc.setTextColor(255,255,255); doc.setFont("helvetica","bold");
+  doc.text("GESAMTRISIKO", M+4, y+5);
+  doc.setFontSize(13);
+  doc.text(currentReport.gesamtrisiko, M+4, y+11);
+  doc.setFontSize(9); doc.setFont("helvetica","normal");
+  doc.text("Nächste Prüfung: "+currentReport.naechste_pruefung, M+80, y+8);
+  doc.text("Erstellt: "+d, M+80, y+13);
+  y += 20;
+
+  // Summary
+  addLine("EXECUTIVE SUMMARY", 8, true, [138,153,170]);
+  y += 1;
+  addLine(currentReport.zusammenfassung, 10, false, [197,208,220]);
+  y += 4; rule();
+
+  // Sofort
+  addLine("SOFORTMASSNAHMEN", 8, true, [230,126,18]);
+  y += 1;
+  currentReport.sofort.forEach((s,i)=>{
+    doc.setFillColor(230,126,18);
+    doc.roundedRect(M, y-3, 5, 5, 1, 1, "F");
+    doc.setFontSize(8); doc.setTextColor(13,27,42); doc.setFont("helvetica","bold");
+    doc.text(String(i+1), M+1.5, y+0.5);
+    doc.setFontSize(10); doc.setTextColor(247,245,240); doc.setFont("helvetica","normal");
+    const lines = doc.splitTextToSize(s, CW-8);
+    lines.forEach(l=>{ doc.text(l, M+8, y); y+=4.5; });
+    y+=1;
+  });
+  y += 2; rule();
+
+  // Bereiche
+  addLine("BEREICHE IM DETAIL", 8, true, [138,153,170]);
+  y += 2;
+  const areaMap = {kv:"KV Hotellerie & Gastronomie",elda:"ELDA / Transfer Webservice",bgbl:"BGBl Arbeitsrecht",eu:"EU – eIDAS & Pay Transparency"};
+  currentReport.bereiche.forEach(b=>{
+    if(y > 250){ doc.addPage(); y=15; drawBg(); }
+    const bc = pm[b.prio]||pm.MITTEL;
+    doc.setFillColor(17,30,46);
+    doc.roundedRect(M, y, CW, 38, 2, 2, "F");
+    doc.setFillColor(...bc);
+    doc.rect(M, y, 2, 38, "F");
+    doc.setFontSize(10); doc.setTextColor(247,245,240); doc.setFont("helvetica","bold");
+    doc.text(b.headline||"", M+5, y+6);
+    doc.setFontSize(8); doc.setTextColor(...bc); doc.setFont("helvetica","bold");
+    doc.text(b.prio, W-M-20, y+6);
+    doc.setFontSize(8); doc.setTextColor(138,153,170); doc.setFont("helvetica","normal");
+    doc.text(areaMap[b.id]||b.id, M+5, y+11);
+    // Three columns
+    const cols = [["BEFUND",b.befund],["AUSWIRKUNG",b.auswirkung],["AKTION",b.aktion]];
+    const cw3 = CW/3;
+    cols.forEach(([lbl,val],ci)=>{
+      const cx = M+5 + ci*cw3;
+      doc.setFontSize(7); doc.setTextColor(138,153,170); doc.setFont("helvetica","bold");
+      doc.text(lbl, cx, y+17);
+      doc.setFontSize(8); doc.setTextColor(197,208,220); doc.setFont("helvetica","normal");
+      const vlines = doc.splitTextToSize(String(val||""), cw3-4);
+      vlines.slice(0,2).forEach((vl,vi)=>doc.text(vl, cx, y+22+vi*4));
+    });
+    doc.setFontSize(8); doc.setTextColor(...bc); doc.setFont("helvetica","bold");
+    doc.text("Deadline: "+b.deadline, M+5+2*cw3, y+34);
+    y += 44;
+  });
+
+  // Footer
+  if(y > 270){ doc.addPage(); drawBg(); y=15; }
+  rule([46,64,96]);
+  doc.setFontSize(8); doc.setTextColor(138,153,170); doc.setFont("helvetica","normal");
+  doc.text("KV-Monitor Agent · Automatisch generiert · "+d, M, y+4);
+
+  doc.save("KV-Monitor-Report-"+d.replace(/\./g,"-")+".pdf");
 }
 
 async function startAgent(){
