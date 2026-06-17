@@ -13,29 +13,29 @@ HEADERS = {
     "anthropic-version": "2023-06-01",
 }
 
-AREAS = [
-    {"id": "kv",   "icon": "🏨", "label": "KV Hotellerie & Gastronomie",   "query": "Kollektivvertrag Hotellerie Gastronomie Österreich 2025 Lohnerhöhung Aufsaugklausel Stufensystem aktuell"},
-    {"id": "elda", "icon": "📡", "label": "ELDA / Transfer Webservice",    "query": "ELDA Abschaltung 2027 Transfer Webservice V4 ÖGK Nachfolge Umstieg Österreich 2025"},
-    {"id": "bgbl", "icon": "⚖️", "label": "BGBl Arbeitsrecht",             "query": "Bundesgesetzblatt Österreich Arbeitsrecht 2025 Änderungen Dienstvertrag Lohnrecht aktuell"},
-    {"id": "eu",   "icon": "🇪🇺", "label": "EU – eIDAS & Pay Transparency", "query": "eIDAS 2 Pay Transparency Directive 2023/970 Umsetzung Österreich 2025"},
+# All KV entries for Hotellerie & Gastronomie Austria
+KV_LIST = [
+    # Aktuell zusammengefasste KVs (ab 2024 ein gemeinsamer KV für Arbeiter+Angestellte)
+    {"id": "hoga_2025", "label": "KV Hotellerie & Gastronomie – alle AN (2025)", "year": 2025, "group": "Aktuell"},
+    {"id": "hoga_2024", "label": "KV Hotellerie & Gastronomie – alle AN (2024)", "year": 2024, "group": "Aktuell"},
+
+    # Getrennte KVs (bis 2023)
+    {"id": "hoga_ang_2023", "label": "KV Hotellerie & Gastronomie – Angestellte (2023)", "year": 2023, "group": "Angestellte (bis 2023)"},
+    {"id": "hoga_ang_2022", "label": "KV Hotellerie & Gastronomie – Angestellte (2022)", "year": 2022, "group": "Angestellte (bis 2023)"},
+    {"id": "hoga_ang_2021", "label": "KV Hotellerie & Gastronomie – Angestellte (2021)", "year": 2021, "group": "Angestellte (bis 2023)"},
+    {"id": "hoga_arb_2023", "label": "KV Hotellerie & Gastronomie – Arbeiter (2023)", "year": 2023, "group": "Arbeiter (bis 2023)"},
+    {"id": "hoga_arb_2022", "label": "KV Hotellerie & Gastronomie – Arbeiter (2022)", "year": 2022, "group": "Arbeiter (bis 2023)"},
+    {"id": "hoga_arb_2021", "label": "KV Hotellerie & Gastronomie – Arbeiter (2021)", "year": 2021, "group": "Arbeiter (bis 2023)"},
+
+    # Systemgastronomie
+    {"id": "sysgast_2024", "label": "KV Systemgastronomie (2024)", "year": 2024, "group": "Systemgastronomie"},
+    {"id": "sysgast_2023", "label": "KV Systemgastronomie (2023)", "year": 2023, "group": "Systemgastronomie"},
+    {"id": "sysgast_2022", "label": "KV Systemgastronomie (2022)", "year": 2022, "group": "Systemgastronomie"},
+
+    # Kaffeehäuser
+    {"id": "kaffee_2024", "label": "KV Kaffeehäuser Österreich (2024)", "year": 2024, "group": "Kaffeehäuser"},
+    {"id": "kaffee_2023", "label": "KV Kaffeehäuser Österreich (2023)", "year": 2023, "group": "Kaffeehäuser"},
 ]
-
-
-def call_claude(user_msg, sys_msg, api_key, max_tokens=800):
-    r = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={**HEADERS, "x-api-key": api_key},
-        json={
-            "model": "claude-sonnet-4-6",
-            "max_tokens": max_tokens,
-            "system": sys_msg,
-            "messages": [{"role": "user", "content": user_msg}]
-        },
-        timeout=90
-    )
-    r.raise_for_status()
-    data = r.json()
-    return " ".join(b["text"] for b in data.get("content", []) if b.get("type") == "text")
 
 
 @app.route("/")
@@ -43,58 +43,69 @@ def index():
     return send_from_directory("static", "index.html")
 
 
-@app.route("/api/areas")
-def get_areas():
-    return jsonify(AREAS)
+@app.route("/api/kv_list")
+def kv_list():
+    return jsonify(KV_LIST)
 
 
-@app.route("/api/research", methods=["POST"])
-def research():
-    data = request.json
-    api_key = data.get("api_key", "").strip()
-    if not api_key.startswith("sk-ant-"):
-        return jsonify({"error": "Ungültiger API Key"}), 401
-    area = next((a for a in AREAS if a["id"] == data.get("area_id")), None)
-    if not area:
-        return jsonify({"error": "Unbekannter Bereich"}), 400
-    try:
-        text = call_claude(
-            f'Recherchiere: "{area["query"]}"\n\nLiefere:\n1. Top 3 aktuelle Entwicklungen mit Datum\n2. Auswirkung auf Payroll-Software österreichische Hotellerie\n3. Handlungsempfehlung + Deadline\n4. Dringlichkeit: KRITISCH / HOCH / MITTEL / INFO',
-            "Du bist Payroll-Compliance-Experte für österreichische Hotellerie. Deutsch, konkret, max 300 Wörter.",
-            api_key, 600
-        )
-        prio = "KRITISCH" if "KRITISCH" in text else "HOCH" if "HOCH" in text else "INFO" if re.search(r'\bINFO\b', text) else "MITTEL"
-        return jsonify({"text": text, "prio": prio})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/fullreport_stream", methods=["POST"])
-def fullreport_stream():
+@app.route("/api/kv_check_stream", methods=["POST"])
+def kv_check_stream():
     data = request.json
     api_key = data.get("api_key", "").strip()
     if not api_key.startswith("sk-ant-"):
         return jsonify({"error": "Ungültiger API Key"}), 401
 
-    area_id   = data.get("area_id")
-    area_text = data.get("area_text", "")
-    area      = next((a for a in AREAS if a["id"] == area_id), {"label": area_id})
+    kv_id    = data.get("kv_id", "")
+    kv_label = data.get("kv_label", "")
+    kv_year  = data.get("kv_year", "")
 
-    prompt = f"""Erstelle einen vollständigen Compliance-Bericht für österreichische Payroll-Software:
+    prompt = f"""Du bist ein österreichischer Kollektivvertrags-Experte mit Fokus auf Hotellerie und Gastronomie.
 
-BEREICH: {area["label"]}
-RECHERCHE:
-{area_text}
+Der Nutzer hat folgenden Kollektivvertrag als Basis ausgewählt:
+**{kv_label}** (Jahr: {kv_year})
 
-Struktur:
-## Zusammenfassung
-## Aktuelle Rechtslage
-## Auswirkungen auf Payroll-Software
-## Handlungsempfehlungen
-## Deadlines & Fristen
-## Risikobewertung
+## Deine Aufgabe:
 
-Präzise, konkret, praxisorientiert. Kein Marketingsprech."""
+### SCHRITT 1: Prüfung ob neuerer KV vorliegt
+Prüfe ob nach {kv_year} ein neuerer Kollektivvertrag für diese Berufsgruppe abgeschlossen wurde.
+- Falls ja: Nenne den neuesten verfügbaren KV mit Datum des Abschlusses
+- Falls nein: Erkläre warum (z.B. noch gültig, keine neueren Informationen vorhanden)
+
+### SCHRITT 2: Gegenüberstellung der Änderungen
+Wenn ein neuerer KV vorliegt, zeige ALLE Änderungen Paragraph für Paragraph:
+
+Format für jede Änderung:
+**§ [Nummer] – [Paragraphtitel]**
+- ALT ({kv_year}): [alter Text/Regelung]
+- NEU: [neuer Text/Regelung]  
+- BEWERTUNG: [Wesentlich / Nicht wesentlich] – [kurze Begründung warum]
+
+Prüfe insbesondere:
+- Lohntabellen und Mindestlöhne (alle Beschäftigungsgruppen)
+- Lehrlingsentschädigungen
+- Zulagen und Zuschläge (Nacht, Sonn- und Feiertag, Überstunden)
+- Arbeitszeit und Überstundenregelungen
+- Urlaubsregelungen und Urlaubszuschuss
+- Weihnachtsremuneration
+- Aufsaugklausel (Anrechnung von Ist-Löhnen)
+- Kündigungsfristen
+- Senioritätsstufen / Vorrückungssystem
+- Reisekosten und Diäten
+- Sonstige Änderungen
+
+### SCHRITT 3: Zusammenfassung
+- Gesamtbewertung der Änderungen (KRITISCH / HOCH / MITTEL / INFO für Payroll-Software)
+- Top 3 Handlungsempfehlungen für die Lohnverrechnung
+- Umsetzungsdeadline
+
+### SCHRITT 4: Quellen
+Liste alle relevanten Quellen mit direkten URLs:
+- WKO Kollektivvertragsdatenbank
+- AK Österreich
+- Relevante Dokumente
+
+Antworte strukturiert mit Markdown-Formatierung (## für Hauptabschnitte, ### für Unterabschnitte, **fett** für wichtige Begriffe).
+Sei präzise und praxisorientiert. Kein Marketingsprech."""
 
     def generate():
         try:
@@ -104,11 +115,12 @@ Präzise, konkret, praxisorientiert. Kein Marketingsprech."""
                 json={
                     "model": "claude-sonnet-4-6",
                     "max_tokens": 8000,
-                    "system": "Senior Compliance Officer, Payroll-Experte österreichische Hotellerie. Schreibe strukturierte Berichte auf Deutsch.",
+                    "system": "Du bist Senior KV-Experte für österreichische Hotellerie und Gastronomie mit 20 Jahren Erfahrung in der Lohnverrechnung. Deine Analysen sind präzise, vollständig und praxisorientiert.",
                     "stream": True,
                     "messages": [{"role": "user", "content": prompt}]
                 },
-                stream=True, timeout=120
+                stream=True,
+                timeout=120
             )
             r.raise_for_status()
             for line in r.iter_lines():
@@ -130,8 +142,11 @@ Präzise, konkret, praxisorientiert. Kein Marketingsprech."""
         except Exception as e:
             yield f'data: {json.dumps({"error": str(e)})}\n\n'
 
-    return Response(stream_with_context(generate()), mimetype="text/event-stream",
-                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    )
 
 
 if __name__ == "__main__":
