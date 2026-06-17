@@ -41,14 +41,22 @@ def extract_json(text):
         return json.loads(text)
     except Exception:
         pass
-    # Find JSON object in text
-    match = re.search(r'\{.*\}', text, re.DOTALL)
-    if match:
+    # Find JSON object - match from first { to last }
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1 and end > start:
         try:
-            return json.loads(match.group())
+            return json.loads(text[start:end+1])
         except Exception:
             pass
-    raise ValueError(f"Kein gültiges JSON gefunden. Antwort war: {text[:300]}")
+    # Last resort: try to fix common issues
+    try:
+        fixed = text[start:end+1] if start != -1 else text
+        fixed = fixed.replace('\n', ' ').replace('\r', '')
+        return json.loads(fixed)
+    except Exception:
+        pass
+    raise ValueError(f"Kein gültiges JSON. Antwort: {text[:200]}")
 
 
 @app.route("/")
