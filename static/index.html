@@ -3,600 +3,432 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KV-Monitor Agent</title>
+<title>KV-Monitor | personalsoftware.at</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0D1B2A;color:#F7F5F0;font-family:-apple-system,system-ui,sans-serif;min-height:100vh}
-  header{background:#1A2E45;border-bottom:1px solid #2E4060;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
-  .logo{width:36px;height:36px;background:#C0392B;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-  .badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px}
-  .badge-running{background:#243B55;color:#F39C12;border:1px solid #F39C12}
-  .badge-done{background:#0F2D1A;color:#27AE60;border:1px solid #27AE60}
-  .badge-error{background:#2D1515;color:#E74C3C;border:1px solid #E74C3C}
-  main{max-width:860px;margin:0 auto;padding:20px 14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0F2236;color:#E8EEF4;font-family:-apple-system,system-ui,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column}
 
-  /* API KEY SCREEN */
-  #apikey-screen{text-align:center;padding:48px 12px}
-  #apikey-screen h1{font-size:22px;font-weight:800;margin:12px 0 10px}
-  #apikey-screen p{color:#8A99AA;font-size:14px;line-height:1.6;max-width:380px;margin:0 auto 24px}
-  .key-box{background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:20px;max-width:480px;margin:0 auto 16px;text-align:left}
-  .key-label{font-size:11px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
-  .key-input{width:100%;background:#0D1B2A;border:1px solid #2E4060;border-radius:6px;padding:11px 13px;color:#F7F5F0;font-size:13px;outline:none;-webkit-appearance:none;font-family:monospace}
-  .key-input:focus{border-color:#C0392B}
-  .key-hint{font-size:11px;color:#8A99AA;margin-top:8px}
-  .key-saved{font-size:12px;color:#27AE60;margin-top:8px;display:none}
+/* ── HEADER ── */
+header{background:#0A1A2E;border-bottom:1px solid #1E3A5C;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-logo{width:32px;height:32px;background:#C0392B;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;letter-spacing:-1px}
+.header-name{font-size:15px;font-weight:700;color:#E8EEF4}
+.header-sub{font-size:11px;color:#5A7A9A;margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px}
+.key-btn{background:none;border:1px solid #1E3A5C;color:#5A7A9A;padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+.key-btn:active{background:#1E3A5C}
+#run-status{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;display:none}
+.status-running{background:#1A2E45;color:#F39C12;border:1px solid #F39C12;display:flex!important;align-items:center;gap:6px}
+.status-done{background:#0A2A1A;color:#27AE60;border:1px solid #27AE60;display:block!important}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.dot{width:7px;height:7px;border-radius:50%;background:#F39C12;animation:pulse 1s infinite}
 
-  /* IDLE */
-  #idle-screen{text-align:center;padding:48px 12px;display:none}
-  #idle-screen h1{font-size:22px;font-weight:800;margin:12px 0 10px}
-  #idle-screen p{color:#8A99AA;font-size:14px;line-height:1.6;max-width:380px;margin:0 auto 26px}
-  .areas-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px;margin:0 auto 28px;text-align:left}
-  .area-pill{background:#1A2E45;border:1px solid #2E4060;border-radius:8px;padding:10px 13px;display:flex;align-items:center;gap:9px}
-  .area-pill-label{font-size:12px;font-weight:600}
-  .btn-primary{background:#C0392B;color:#fff;border:none;padding:13px 32px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .btn-primary:active{background:#E74C3C}
-  .btn-outline{background:none;color:#8A99AA;border:1px solid #2E4060;padding:8px 18px;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;margin-top:12px}
+/* ── TABS ── */
+.tabs{background:#0A1A2E;border-bottom:1px solid #1E3A5C;display:flex;padding:0 24px;flex-shrink:0}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:#5A7A9A;padding:12px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .15s}
+.tab.active{border-bottom-color:#C0392B;color:#E8EEF4}
+.tab:hover:not(.active){color:#A0B8CC}
 
-  /* TABS */
-  .tabs{display:flex;border-bottom:1px solid #2E4060;margin-bottom:18px;overflow-x:auto}
-  .tab{background:none;border:none;border-bottom:2px solid transparent;color:#8A99AA;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-  .tab.active{border-bottom-color:#C0392B;color:#F7F5F0}
-  .card{background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:16px;margin-bottom:12px}
-  .card-label{font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
-  .risk-banner{border-radius:10px;padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
-  .sofort-box{background:#1A1000;border:1px solid #F39C12;border-radius:10px;padding:16px;margin-bottom:16px}
-  .sofort-label{font-size:10px;color:#F39C12;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
-  .sofort-item{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px}
-  .sofort-num{min-width:20px;height:20px;background:#F39C12;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0D1B2A;margin-top:1px;flex-shrink:0}
-  .area-card{background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left-width:3px;border-left-style:solid}
-  .area-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  .area-card-info{display:flex;align-items:center;gap:9px}
-  .prio-tag{font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
-  .detail-grid{display:grid;grid-template-columns:1fr;gap:10px}
-  @media(min-width:600px){.detail-grid{grid-template-columns:1fr 1fr 1fr}}
-  .detail-label{font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
-  .detail-val{font-size:12px;line-height:1.5;color:#C5D0DC}
-  .pdf-box{background:#1A2E45;border:1px solid #2E4060;border-radius:10px;padding:16px;margin-top:10px;text-align:center}
-  .btn-pdf{background:#C0392B;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
-  .btn-pdf:active{background:#E74C3C}
-  .rerun{text-align:center;margin-top:22px}
-  .terminal{background:#080E16;border-radius:10px;border:1px solid #2E4060;padding:14px;font-family:'Courier New',monospace;font-size:12px;min-height:340px;max-height:480px;overflow-y:auto}
-  .log-ts{color:#3D5066;margin-right:8px}
-  .raw-text{background:#080E16;border-radius:7px;padding:12px;font-size:12px;line-height:1.7;color:#A8B8C8;white-space:pre-wrap;border-top:1px solid #2E4060;margin-top:10px;word-break:break-word}
-  .waiting{text-align:center;padding:60px 20px;color:#8A99AA}
-  .error-box{background:#2D1515;border:1px solid #E74C3C;border-radius:10px;padding:16px;color:#E74C3C;margin-top:12px;font-size:13px}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-  .cursor{animation:blink 1s infinite;color:#F39C12}
+/* ── MAIN ── */
+.content{flex:1;overflow-y:auto;padding:24px 20px;max-width:900px;width:100%;margin:0 auto}
+
+/* ── API KEY SCREEN ── */
+#screen-apikey{text-align:center;padding:60px 16px}
+#screen-apikey h2{font-size:20px;font-weight:800;margin:14px 0 10px}
+#screen-apikey p{color:#5A7A9A;font-size:14px;max-width:360px;margin:0 auto 24px;line-height:1.6}
+.key-card{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:20px;max-width:440px;margin:0 auto 20px;text-align:left}
+.field-label{font-size:10px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+.key-field{width:100%;background:#0F2236;border:1px solid #1E3A5C;border-radius:6px;padding:10px 13px;color:#E8EEF4;font-size:13px;font-family:monospace;outline:none;-webkit-appearance:none}
+.key-field:focus{border-color:#C0392B}
+.hint{font-size:11px;color:#5A7A9A;margin-top:7px}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:8px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-primary{background:#C0392B;color:#fff;padding:12px 28px;font-size:14px}
+.btn-outline{background:none;border:1px solid #1E3A5C;color:#A0B8CC;padding:9px 18px;font-size:13px}
+
+/* ── RECHERCHE TAB ── */
+.section-title{font-size:11px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.area-checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+@media(max-width:500px){.area-checks{grid-template-columns:1fr}}
+.area-check{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:9px;padding:13px 15px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
+.area-check.selected{border-color:#C0392B;background:#150A0A}
+.area-check input{display:none}
+.check-box{width:18px;height:18px;border:2px solid #1E3A5C;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.area-check.selected .check-box{background:#C0392B;border-color:#C0392B}
+.check-tick{color:#fff;font-size:11px;font-weight:900}
+.area-icon{font-size:19px}
+.area-info-label{font-size:13px;font-weight:600;color:#E8EEF4}
+.area-info-sub{font-size:10px;color:#5A7A9A;margin-top:2px}
+.start-row{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+
+/* ── LOG ── */
+.log-box{background:#060F1A;border:1px solid #1E3A5C;border-radius:9px;padding:14px;font-family:'Courier New',monospace;font-size:12px;min-height:180px;max-height:320px;overflow-y:auto}
+.log-line{margin-bottom:3px;line-height:1.5}
+.log-ts{color:#2A4A6A;margin-right:8px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor{color:#F39C12;animation:blink 1s infinite}
+
+/* ── BERICHT TAB ── */
+#screen-bericht-empty{text-align:center;padding:60px 16px;color:#5A7A9A}
+.bericht-header{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:16px 20px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.bericht-ts{font-size:11px;color:#5A7A9A}
+.bericht-ts span{color:#E8EEF4;font-weight:600}
+.bericht-areas{display:flex;gap:6px;flex-wrap:wrap}
+.area-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#0F2236;border:1px solid #1E3A5C;color:#A0B8CC}
+
+/* ── STREAMING CONTENT ── */
+.stream-area{margin-bottom:20px}
+.stream-area-header{background:#0A1A2E;border:1px solid #1E3A5C;border-left:3px solid #C0392B;border-radius:8px;padding:12px 16px;margin-bottom:0;display:flex;align-items:center;justify-content:space-between}
+.stream-area-title{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px}
+.prio-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
+.stream-body{background:#0A1A2E;border:1px solid #1E3A5C;border-top:none;border-radius:0 0 8px 8px;padding:18px 20px}
+
+/* ── MARKDOWN-LIKE RENDERING ── */
+.md-content h2{font-size:13px;font-weight:700;color:#C0392B;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid #1E3A5C}
+.md-content h2:first-child{margin-top:0}
+.md-content h3{font-size:13px;font-weight:700;color:#A0B8CC;margin:12px 0 5px}
+.md-content p{font-size:13px;line-height:1.75;color:#C0D0E0;margin-bottom:8px}
+.md-content ul,.md-content ol{margin:6px 0 10px 18px}
+.md-content li{font-size:13px;line-height:1.7;color:#C0D0E0;margin-bottom:3px}
+.md-content strong{color:#E8EEF4;font-weight:700}
+.md-content .sources{background:#060F1A;border:1px solid #1E3A5C;border-radius:7px;padding:12px 14px;margin-top:14px}
+.md-content .sources-title{font-size:10px;font-weight:700;color:#5A7A9A;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.md-content .source-item{font-size:12px;color:#5A7A9A;margin-bottom:3px}
+.md-content .source-item::before{content:"→ ";color:#C0392B}
+.generating{display:flex;align-items:center;gap:8px;font-size:12px;color:#5A7A9A;padding:8px 0}
+.gen-dot{width:6px;height:6px;border-radius:50%;background:#C0392B;animation:pulse 1s infinite}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-async function startFullReport(){
-  const kvResult = results["kv"];
-  if(!kvResult || !kvResult.text){
-    document.getElementById("fullreport-empty").innerHTML = '<div style="text-align:center;padding:40px;color:#E74C3C">Bitte zuerst „Jetzt prüfen" ausführen.</div>';
-    return;
-  }
-  const content = document.getElementById("fullreport-content");
-  const status = document.getElementById("fullreport-status");
-  const empty = document.getElementById("fullreport-empty");
-
-  content.style.display = "block";
-  content.textContent = "";
-  empty.style.display = "none";
-  status.textContent = "⏳ Vollbericht wird generiert...";
-
-  try {
-    const response = await fetch("/api/fullreport_stream", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        api_key: getApiKey(),
-        area_text: kvResult.text,
-        area_label: "KV Hotellerie & Gastronomie"
-      })
-    });
-
-    if(!response.ok) throw new Error("Server Fehler: " + response.status);
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-
-    while(true){
-      const {done, value} = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, {stream: true});
-      const lines = buffer.split("\n");
-      buffer = lines.pop();
-      for(const line of lines){
-        if(line.startsWith("data: ")){
-          try{
-            const evt = JSON.parse(line.slice(6));
-            if(evt.text) content.textContent += evt.text;
-            if(evt.done){ status.textContent = "✓ Fertig"; }
-            if(evt.error){ status.textContent = "✗ " + evt.error; }
-          } catch(e){}
-        }
-      }
-      content.scrollTop = content.scrollHeight;
-    }
-    status.textContent = "✓ Vollbericht fertig";
-  } catch(e){
-    status.textContent = "✗ Fehler: " + e.message;
-    content.textContent += "\n\nFehler: " + e.message;
-  }
-}
-
-</script>
 </head>
 <body>
+
 <header>
-  <div style="display:flex;align-items:center;gap:12px">
-    <div class="logo">⚡</div>
+  <div class="header-brand">
+    <div class="header-logo">PS</div>
     <div>
-      <div style="font-weight:700;font-size:15px">KV-Monitor Agent</div>
-      <div style="font-size:11px;color:#8A99AA">Hotellerie & Gastronomie · Payroll Compliance AT</div>
+      <div class="header-name">KV-Monitor Agent</div>
+      <div class="header-sub">personalsoftware.at · Payroll Compliance AT</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <div id="status-badge"></div>
-    <button class="btn-outline" onclick="showApiScreen()" style="padding:5px 10px;font-size:11px;margin:0" id="key-btn" title="API Key ändern">🔑</button>
+  <div class="header-right">
+    <div id="run-status"></div>
+    <button class="key-btn" onclick="showApiKey()">🔑 API Key</button>
   </div>
 </header>
 
-<main>
-  <!-- API KEY SCREEN -->
-  <div id="apikey-screen">
-    <div style="font-size:42px">🔑</div>
-    <h1>API Key eingeben</h1>
-    <p>Einmalig eingeben – wird lokal gespeichert. Nie wieder nötig.</p>
-    <div class="key-box">
-      <div class="key-label">Anthropic API Key</div>
-      <input class="key-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-      <div class="key-hint">Aus console.anthropic.com → API Keys</div>
-      <div class="key-saved" id="key-saved">✓ Key gespeichert</div>
-    </div>
-    <button class="btn-primary" onclick="saveApiKey()">✓ Speichern & weiter</button>
+<!-- API KEY SCREEN -->
+<div id="screen-apikey" style="flex:1;overflow-y:auto;padding:24px 20px">
+  <div style="font-size:38px">🔑</div>
+  <h2>API Key eingeben</h2>
+  <p>Einmalig eingeben – wird lokal gespeichert.</p>
+  <div class="key-card">
+    <div class="field-label">Anthropic API Key</div>
+    <input class="key-field" type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="hint">console.anthropic.com → API Keys</div>
+  </div>
+  <button class="btn btn-primary" onclick="saveKey()">✓ Speichern & starten</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('recherche')">🔍 Recherche</button>
+    <button class="tab" onclick="switchTab('bericht')">📋 Bericht</button>
   </div>
 
-  <!-- IDLE -->
-  <div id="idle-screen">
-    <div style="font-size:42px">🔍</div>
-    <h1>Compliance-Check starten</h1>
-    <p>Der Agent recherchiert autonom in WKO, BGBl, ÖGK und EUR-Lex und liefert einen priorisierten Report.</p>
-    <div class="areas-grid">
-      <div class="area-pill"><span>🏨</span><div class="area-pill-label">KV Hotellerie & Gastronomie</div></div>
-      <div class="area-pill"><span>📡</span><div class="area-pill-label">ELDA / Transfer Webservice</div></div>
-      <div class="area-pill"><span>⚖️</span><div class="area-pill-label">BGBl Arbeitsrecht</div></div>
-      <div class="area-pill"><span>🇪🇺</span><div class="area-pill-label">EU – eIDAS & Pay Transparency</div></div>
+  <!-- RECHERCHE -->
+  <div id="tab-recherche" class="content">
+    <div class="section-title">Überwachungsbereiche auswählen</div>
+    <div class="areas-grid area-checks" id="area-checks"></div>
+
+    <div class="start-row">
+      <button class="btn btn-primary" id="start-btn" onclick="startAgent()">⚡ Recherche starten</button>
+      <button class="btn btn-outline" onclick="toggleAll()">Alle an/ab</button>
     </div>
-    <button class="btn-primary" onclick="startAgent()">⚡ Jetzt prüfen</button>
+
+    <div class="section-title">Agent-Log</div>
+    <div class="log-box" id="log-box"><span class="cursor">█</span></div>
   </div>
 
-  <!-- MAIN UI -->
-  <div id="main-ui" style="display:none">
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('report')">📋 Report</button>
-      <button class="tab" onclick="switchTab('logs')">🖥 Agent-Log</button>
-      <button class="tab" onclick="switchTab('areas')">🔬 Detailanalyse</button>
-      <button class="tab" onclick="switchTab('fullreport')">📄 Vollbericht</button>
+  <!-- BERICHT -->
+  <div id="tab-bericht" class="content" style="display:none">
+    <div id="bericht-empty" style="text-align:center;padding:60px 16px;color:#5A7A9A">
+      <div style="font-size:32px;margin-bottom:10px">📋</div>
+      <div>Zuerst Recherche starten – dann erscheint hier der Bericht</div>
     </div>
-    <div id="tab-report">
-      <div id="report-loading" class="waiting"><div style="font-size:28px;margin-bottom:10px">⚙️</div>Agent läuft – wechsle zu „Agent-Log" für Live-Updates</div>
-      <div id="report-content" style="display:none"></div>
-    </div>
-    <div id="tab-logs" style="display:none">
-      <div class="terminal" id="terminal"><span class="cursor">█</span></div>
-    </div>
-    <div id="tab-areas" style="display:none">
-      <div id="areas-content"></div>
-    </div>
-    <div id="tab-fullreport" style="display:none">
-      <div id="fullreport-controls" style="margin-bottom:16px">
-        <div style="font-size:11px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Bereich auswählen (Testmodus: KV)</div>
-        <button onclick="startFullReport()" style="background:#C0392B;color:#fff;border:none;padding:11px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">📄 Vollbericht generieren</button>
-        <span id="fullreport-status" style="font-size:12px;color:#8A99AA;margin-left:12px"></span>
+    <div id="bericht-content" style="display:none">
+      <div class="bericht-header">
+        <div>
+          <div class="field-label">Compliance Bericht</div>
+          <div class="bericht-ts">Erstellt: <span id="bericht-ts-val"></span></div>
+        </div>
+        <div class="bericht-areas" id="bericht-area-badges"></div>
       </div>
-      <div id="fullreport-content" style="background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:20px;font-size:13px;line-height:1.8;color:#C5D0DC;min-height:200px;white-space:pre-wrap;word-break:break-word;display:none"></div>
-      <div id="fullreport-empty" style="text-align:center;padding:40px;color:#8A99AA">
-        <div style="font-size:28px;margin-bottom:10px">📄</div>
-        <div>Erst „Jetzt prüfen" starten, dann Vollbericht generieren</div>
-      </div>
+      <div id="bericht-stream-container"></div>
     </div>
   </div>
-</main>
+</div>
 
 <script>
 const AREAS = [
-  {id:"kv",  icon:"🏨",label:"KV Hotellerie & Gastronomie", query:"Kollektivvertrag Hotellerie Gastronomie Österreich 2025 Lohnerhöhung Aufsaugklausel Stufensystem aktuell"},
-  {id:"elda",icon:"📡",label:"ELDA / Transfer Webservice",  query:"ELDA Abschaltung 2027 Transfer Webservice V4 ÖGK Nachfolge Umstieg Österreich 2025 aktuell"},
-  {id:"bgbl",icon:"⚖️",label:"BGBl Arbeitsrecht",           query:"Bundesgesetzblatt Österreich Arbeitsrecht 2025 Änderungen Dienstvertrag Lohnrecht aktuell"},
-  {id:"eu",  icon:"🇪🇺",label:"EU – eIDAS & Pay Transparency",query:"eIDAS 2 Pay Transparency Directive 2023/970 Umsetzung Österreich 2025 aktuell"}
+  {id:"kv",  icon:"🏨", label:"KV Hotellerie & Gastronomie", sub:"WKO · AK · ÖGB",   query:"Kollektivvertrag Hotellerie Gastronomie Österreich 2025 Lohnerhöhung Aufsaugklausel Stufensystem aktuell"},
+  {id:"elda",icon:"📡", label:"ELDA / Transfer Webservice",  sub:"ÖGK · ELDA",        query:"ELDA Abschaltung 2027 Transfer Webservice V4 ÖGK Nachfolge Umstieg Österreich 2025"},
+  {id:"bgbl",icon:"⚖️", label:"BGBl Arbeitsrecht",           sub:"BGBl · RIS · Parl.", query:"Bundesgesetzblatt Österreich Arbeitsrecht 2025 Änderungen Dienstvertrag Lohnrecht aktuell"},
+  {id:"eu",  icon:"🇪🇺", label:"EU – eIDAS & Pay Transparency",sub:"EUR-Lex · BMJ",   query:"eIDAS 2 Pay Transparency Directive 2023/970 Umsetzung Österreich 2025"},
 ];
 const PM = {
-  KRITISCH:{c:"#E74C3C",bg:"#2D1515",emoji:"🔴"},
-  HOCH:    {c:"#F39C12",bg:"#2D2010",emoji:"🟠"},
-  MITTEL:  {c:"#3498DB",bg:"#101D2D",emoji:"🔵"},
-  INFO:    {c:"#8A99AA",bg:"#151D25",emoji:"⚪"}
+  KRITISCH:{c:"#E74C3C",bg:"#2D1010",border:"#E74C3C"},
+  HOCH:    {c:"#F39C12",bg:"#2D2010",border:"#F39C12"},
+  MITTEL:  {c:"#3498DB",bg:"#101828",border:"#3498DB"},
+  INFO:    {c:"#5A7A9A",bg:"#0A1A2E",border:"#1E3A5C"},
 };
 
-let results={}, currentReport=null;
+let selected = new Set(AREAS.map(a=>a.id));
+let results  = {};
+let running  = false;
 
-// ── API Key management ──────────────────────────────────────────────────────
-function getApiKey(){ return localStorage.getItem("anthropic_api_key")||""; }
+// ── API KEY ────────────────────────────────────────────────────────────────
+function getKey(){ return localStorage.getItem("psat_api_key")||""; }
+function saveKey(){
+  const v = document.getElementById("api-key-input").value.trim();
+  if(!v.startsWith("sk-ant-")){ alert("Key muss mit sk-ant- beginnen"); return; }
+  localStorage.setItem("psat_api_key", v);
+  showApp();
+}
+function showApiKey(){
+  document.getElementById("screen-apikey").style.display="block";
+  document.getElementById("app").style.display="none";
+  const k=getKey(); if(k) document.getElementById("api-key-input").value=k;
+}
+function showApp(){
+  document.getElementById("screen-apikey").style.display="none";
+  document.getElementById("app").style.display="flex";
+}
+window.onload=()=>{ getKey() ? showApp() : showApiKey(); buildAreaChecks(); };
 
-function saveApiKey(){
-  const val = document.getElementById("api-key-input").value.trim();
-  if(!val.startsWith("sk-ant-")){ alert("Key muss mit sk-ant- beginnen"); return; }
-  localStorage.setItem("anthropic_api_key", val);
-  document.getElementById("key-saved").style.display="block";
-  setTimeout(()=>{ showIdleScreen(); }, 800);
+// ── AREA CHECKBOXES ────────────────────────────────────────────────────────
+function buildAreaChecks(){
+  const c = document.getElementById("area-checks");
+  c.innerHTML = AREAS.map(a=>`
+    <div class="area-check selected" id="check-${a.id}" onclick="toggleArea('${a.id}')">
+      <div class="check-box"><span class="check-tick">✓</span></div>
+      <span class="area-icon">${a.icon}</span>
+      <div>
+        <div class="area-info-label">${a.label}</div>
+        <div class="area-info-sub">${a.sub}</div>
+      </div>
+    </div>`).join("");
+}
+function toggleArea(id){
+  if(running) return;
+  if(selected.has(id)){ selected.delete(id); document.getElementById("check-"+id).classList.remove("selected"); }
+  else { selected.add(id); document.getElementById("check-"+id).classList.add("selected"); }
+}
+function toggleAll(){
+  if(running) return;
+  if(selected.size===AREAS.length){ selected.clear(); AREAS.forEach(a=>document.getElementById("check-"+a.id).classList.remove("selected")); }
+  else { AREAS.forEach(a=>{ selected.add(a.id); document.getElementById("check-"+a.id).classList.add("selected"); }); }
 }
 
-function showApiScreen(){
-  document.getElementById("apikey-screen").style.display="block";
-  document.getElementById("idle-screen").style.display="none";
-  document.getElementById("main-ui").style.display="none";
-  const k = getApiKey();
-  if(k) document.getElementById("api-key-input").value = k;
-}
-
-function showIdleScreen(){
-  document.getElementById("apikey-screen").style.display="none";
-  document.getElementById("idle-screen").style.display="block";
-  document.getElementById("main-ui").style.display="none";
-}
-
-// On load
-window.onload = function(){
-  if(getApiKey()){ showIdleScreen(); } else { showApiScreen(); }
-};
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── LOG ────────────────────────────────────────────────────────────────────
 function ts(){ return new Date().toLocaleTimeString("de-AT",{hour12:false}); }
-
-function addLog(text, color){
-  const t=document.getElementById("terminal");
-  const cursor=t.querySelector(".cursor");
-  if(!text){const sp=document.createElement("div");sp.style.height="8px";t.insertBefore(sp,cursor);t.scrollTop=t.scrollHeight;return;}
-  const line=document.createElement("div");
-  line.innerHTML=`<span class="log-ts">${ts()}</span><span style="color:${color||"#8A99AA"}">${text}</span>`;
-  t.insertBefore(line,cursor);
-  t.scrollTop=t.scrollHeight;
+function log(text, color){
+  const box = document.getElementById("log-box");
+  const cur = box.querySelector(".cursor");
+  if(!text){ const s=document.createElement("div"); s.style.height="7px"; box.insertBefore(s,cur); box.scrollTop=box.scrollHeight; return; }
+  const d = document.createElement("div");
+  d.className="log-line";
+  d.innerHTML=`<span class="log-ts">${ts()}</span><span style="color:${color||"#5A7A9A"}">${text}</span>`;
+  box.insertBefore(d,cur); box.scrollTop=box.scrollHeight;
 }
 
+// ── TAB ────────────────────────────────────────────────────────────────────
 function switchTab(name){
-  ["report","logs","areas","fullreport"].forEach(n=>{document.getElementById("tab-"+n).style.display=n===name?"block":"none"});
-  document.querySelectorAll(".tab").forEach((b,i)=>{b.classList.toggle("active",["report","logs","areas","fullreport"][i]===name)});
+  ["recherche","bericht"].forEach(n=>{
+    document.getElementById("tab-"+n).style.display=n===name?"block":"none";
+  });
+  document.querySelectorAll(".tab").forEach((b,i)=>{
+    b.classList.toggle("active",["recherche","bericht"][i]===name);
+  });
 }
 
-// ── Claude API call (direct from browser via server proxy) ──────────────────
-async function callClaude(userMsg, sysMsg, mode="research"){
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 90000);
-  try {
-    const r = await fetch("/api/research_direct", {
+// ── RECHERCHE ──────────────────────────────────────────────────────────────
+async function startAgent(){
+  if(running) return;
+  if(!getKey()){ showApiKey(); return; }
+  if(selected.size===0){ alert("Bitte mindestens einen Bereich auswählen."); return; }
+
+  running=true; results={};
+  document.getElementById("log-box").innerHTML='<span class="cursor">█</span>';
+  document.getElementById("bericht-empty").style.display="block";
+  document.getElementById("bericht-content").style.display="none";
+  document.getElementById("bericht-stream-container").innerHTML="";
+
+  const statusEl = document.getElementById("run-status");
+  statusEl.className="status-running"; statusEl.style.display="flex";
+  statusEl.innerHTML='<div class="dot"></div> AGENT AKTIV';
+
+  log("▶ KV-Monitor Agent gestartet","#7EC8E3");
+  log("Datum: "+new Date().toLocaleDateString("de-AT"),"#7EC8E3");
+  log("Bereiche: "+[...selected].map(id=>AREAS.find(a=>a.id===id)?.label).join(", "),"#5A7A9A");
+  log("","");
+
+  const toRun = AREAS.filter(a=>selected.has(a.id));
+
+  for(const area of toRun){
+    log("","");
+    log(area.icon+" "+area.label,"#F39C12");
+    log("→ Recherche läuft...","#5A7A9A");
+    try{
+      const r = await fetch("/api/research",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({api_key:getKey(), area_id:area.id})
+      });
+      const d = await r.json();
+      if(d.error) throw new Error(d.error);
+      results[area.id]={text:d.text, prio:d.prio};
+      const col=d.prio==="KRITISCH"?"#E74C3C":d.prio==="HOCH"?"#F39C12":"#27AE60";
+      log("✓ Abgeschlossen – "+d.prio, col);
+    }catch(e){
+      log("✗ Fehler: "+e.message,"#E74C3C");
+      results[area.id]={text:"Fehler: "+e.message, prio:"INFO"};
+    }
+  }
+
+  log("","");
+  log("─────────────────────────────────","#1E3A5C");
+  log("✓ Recherche abgeschlossen – Bericht wird generiert...","#7EC8E3");
+
+  statusEl.className="status-done"; statusEl.innerHTML="✓ FERTIG";
+
+  // Switch to bericht and start streaming
+  switchTab("bericht");
+  await generateBericht(toRun);
+  running=false;
+}
+
+// ── BERICHT STREAMING ──────────────────────────────────────────────────────
+async function generateBericht(areas){
+  const now = new Date();
+  document.getElementById("bericht-ts-val").textContent =
+    now.toLocaleDateString("de-AT")+" "+now.toLocaleTimeString("de-AT",{hour12:false});
+
+  // Area badges
+  document.getElementById("bericht-area-badges").innerHTML =
+    areas.map(a=>`<span class="area-badge">${a.icon} ${a.label}</span>`).join("");
+
+  document.getElementById("bericht-empty").style.display="none";
+  document.getElementById("bericht-content").style.display="block";
+
+  const container = document.getElementById("bericht-stream-container");
+
+  for(const area of areas){
+    const r = results[area.id];
+    if(!r) continue;
+    const pm = PM[r.prio]||PM.MITTEL;
+
+    // Create area block
+    const block = document.createElement("div");
+    block.className="stream-area";
+    block.innerHTML=`
+      <div class="stream-area-header" style="border-left-color:${pm.c}">
+        <div class="stream-area-title">
+          <span>${area.icon}</span>
+          <span>${area.label}</span>
+        </div>
+        <span class="prio-tag" style="background:${pm.bg};color:${pm.c};border:1px solid ${pm.border}">${r.prio}</span>
+      </div>
+      <div class="stream-body">
+        <div class="generating" id="gen-${area.id}"><div class="gen-dot"></div>Bericht wird generiert...</div>
+        <div class="md-content" id="md-${area.id}"></div>
+      </div>`;
+    container.appendChild(block);
+    block.scrollIntoView({behavior:"smooth", block:"end"});
+
+    await streamArea(area, r);
+  }
+}
+
+async function streamArea(area, result){
+  const genEl = document.getElementById("gen-"+area.id);
+  const mdEl  = document.getElementById("md-"+area.id);
+  let rawText = "";
+
+  try{
+    const resp = await fetch("/api/fullreport_stream",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
-        user_msg: userMsg,
-        sys_msg: sysMsg,
-        api_key: getApiKey(),
-        mode: mode
-      }),
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
-    if(!r.ok){ const e=await r.text(); throw new Error(`API ${r.status}: ${e.slice(0,200)}`); }
-    const d = await r.json();
-    if(d.error) throw new Error(d.error);
-    return mode === "report" ? d : d.text;
-  } catch(e) {
-    clearTimeout(timeout);
-    if(e.name === "AbortError") throw new Error("Timeout – Anfrage dauerte zu lang. Bitte erneut versuchen.");
-    throw e;
-  }
-}
-
-function getPrio(text){
-  if(text.includes("KRITISCH")) return "KRITISCH";
-  if(text.includes("HOCH")) return "HOCH";
-  if(/\bINFO\b/.test(text)&&!text.includes("HOCH")&&!text.includes("KRITISCH")) return "INFO";
-  return "MITTEL";
-}
-
-function refreshAreas(){
-  let html="";
-  AREAS.forEach(a=>{
-    const r=results[a.id];
-    const m=r?(PM[r.prio]||PM.MITTEL):null;
-    html+=`<div class="area-card" style="border-left-color:${m?m.c:"#2E4060"}">
-      <div class="area-card-top">
-        <div class="area-card-info"><span style="font-size:18px">${a.icon}</span><div style="font-weight:700;font-size:13px">${a.label}</div></div>
-        ${r?`<span class="prio-tag" style="background:${m.bg};color:${m.c}">${m.emoji} ${r.prio}</span>`:`<span style="color:#8A99AA;font-size:12px">⏳ Läuft...</span>`}
-      </div>
-      ${r?`<div class="raw-text">${r.text}</div>`:""}
-    </div>`;
-  });
-  document.getElementById("areas-content").innerHTML=html;
-}
-
-function renderReport(rep){
-  const m=PM[rep.gesamtrisiko]||PM.MITTEL;
-  let bereiche="";
-  rep.bereiche.forEach(b=>{
-    const a=AREAS.find(x=>x.id===b.id)||{};
-    const bm=PM[b.prio]||PM.MITTEL;
-    bereiche+=`<div class="area-card" style="border-left-color:${bm.c}">
-      <div class="area-card-top">
-        <div class="area-card-info"><span style="font-size:18px">${a.icon||""}</span><div><div style="font-weight:700;font-size:13px">${b.headline}</div><div style="font-size:11px;color:#8A99AA;margin-top:2px">${a.label||""}</div></div></div>
-        <span class="prio-tag" style="background:${bm.bg};color:${bm.c};border:1px solid ${bm.c}40">${bm.emoji} ${b.prio}</span>
-      </div>
-      <div class="detail-grid">
-        <div><div class="detail-label">Befund</div><div class="detail-val">${b.befund}</div></div>
-        <div><div class="detail-label">Auswirkung</div><div class="detail-val">${b.auswirkung}</div></div>
-        <div><div class="detail-label">Nächste Aktion</div><div class="detail-val">${b.aktion}</div><div style="font-size:11px;font-weight:700;margin-top:5px;color:${bm.c}">⏱ ${b.deadline}</div></div>
-      </div>
-    </div>`;
-  });
-  let sofort="";
-  rep.sofort.forEach((s,i)=>{sofort+=`<div class="sofort-item"><div class="sofort-num">${i+1}</div><div style="font-size:13px;line-height:1.5">${s}</div></div>`;});
-
-  document.getElementById("report-content").innerHTML=`
-    <div class="risk-banner" style="background:${m.bg};border:1px solid ${m.c}">
-      <div><div style="font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">Gesamtrisiko</div>
-      <div style="font-size:24px;font-weight:800;color:${m.c}">${m.emoji} ${rep.gesamtrisiko}</div></div>
-      <div style="text-align:right;font-size:12px"><div style="color:#8A99AA;margin-bottom:3px">Nächste Prüfung</div><div style="font-weight:600">${rep.naechste_pruefung}</div></div>
-    </div>
-    <div class="card" style="margin-bottom:14px"><div class="card-label">Executive Summary</div><p style="font-size:13px;line-height:1.7">${rep.zusammenfassung}</p></div>
-    <div class="sofort-box"><div class="sofort-label">⚡ Sofortmaßnahmen</div>${sofort}</div>
-    ${bereiche}
-    <div class="pdf-box">
-      <div class="card-label" style="margin-bottom:10px">📄 Report exportieren</div>
-      <button class="btn-pdf" onclick="downloadPDF()">⬇ PDF herunterladen</button>
-    </div>
-    <div class="rerun"><button class="btn-primary" onclick="startAgent()">↺ Erneut prüfen</button></div>`;
-  document.getElementById("report-loading").style.display="none";
-  document.getElementById("report-content").style.display="block";
-}
-
-function downloadPDF(){
-  if(!currentReport) return;
-  const d = new Date().toLocaleDateString("de-AT");
-  const {jsPDF} = window.jspdf;
-  const doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
-  const W = 210, M = 15, CW = W - 2*M;
-  let y = 15;
-
-  function addLine(text, size, bold, color){
-    doc.setFontSize(size||11);
-    doc.setFont("helvetica", bold?"bold":"normal");
-    doc.setTextColor(...(color||[245,245,240]));
-    const lines = doc.splitTextToSize(String(text||""), CW);
-    lines.forEach(l => {
-      if(y > 275){ doc.addPage(); y = 15; drawBg(); }
-      doc.text(l, M, y);
-      y += size ? size*0.45 : 5;
-    });
-  }
-
-  function drawBg(){ doc.setFillColor(13,27,42); doc.rect(0,0,210,297,"F"); }
-  function rule(col){ doc.setDrawColor(...(col||[46,64,96])); doc.setLineWidth(0.3); doc.line(M,y,W-M,y); y+=4; }
-
-  drawBg();
-
-  // Header
-  doc.setFillColor(192,57,43);
-  doc.roundedRect(M, y-4, 12, 12, 2, 2, "F");
-  doc.setFontSize(14); doc.setTextColor(255,255,255); doc.setFont("helvetica","bold");
-  doc.text("KV", M+2, y+4);
-  doc.setFontSize(16); doc.setTextColor(247,245,240);
-  doc.text("KV-Monitor Agent", M+16, y+4);
-  doc.setFontSize(9); doc.setTextColor(138,153,170); doc.setFont("helvetica","normal");
-  doc.text("Hotellerie & Gastronomie · Payroll Compliance AT", M+16, y+9);
-  y += 18;
-  rule();
-
-  // Risk
-  const pm = {KRITISCH:[192,57,43], HOCH:[230,126,18], MITTEL:[52,152,219], INFO:[138,153,170]};
-  const rc = pm[currentReport.gesamtrisiko]||pm.MITTEL;
-  doc.setFillColor(...rc);
-  doc.roundedRect(M, y, CW, 14, 2, 2, "F");
-  doc.setFontSize(9); doc.setTextColor(255,255,255); doc.setFont("helvetica","bold");
-  doc.text("GESAMTRISIKO", M+4, y+5);
-  doc.setFontSize(13);
-  doc.text(currentReport.gesamtrisiko, M+4, y+11);
-  doc.setFontSize(9); doc.setFont("helvetica","normal");
-  doc.text("Nächste Prüfung: "+currentReport.naechste_pruefung, M+80, y+8);
-  doc.text("Erstellt: "+d, M+80, y+13);
-  y += 20;
-
-  // Summary
-  addLine("EXECUTIVE SUMMARY", 8, true, [138,153,170]);
-  y += 1;
-  addLine(currentReport.zusammenfassung, 10, false, [197,208,220]);
-  y += 4; rule();
-
-  // Sofort
-  addLine("SOFORTMASSNAHMEN", 8, true, [230,126,18]);
-  y += 1;
-  currentReport.sofort.forEach((s,i)=>{
-    doc.setFillColor(230,126,18);
-    doc.roundedRect(M, y-3, 5, 5, 1, 1, "F");
-    doc.setFontSize(8); doc.setTextColor(13,27,42); doc.setFont("helvetica","bold");
-    doc.text(String(i+1), M+1.5, y+0.5);
-    doc.setFontSize(10); doc.setTextColor(247,245,240); doc.setFont("helvetica","normal");
-    const lines = doc.splitTextToSize(s, CW-8);
-    lines.forEach(l=>{ doc.text(l, M+8, y); y+=4.5; });
-    y+=1;
-  });
-  y += 2; rule();
-
-  // Bereiche
-  addLine("BEREICHE IM DETAIL", 8, true, [138,153,170]);
-  y += 2;
-  const areaMap = {kv:"KV Hotellerie & Gastronomie",elda:"ELDA / Transfer Webservice",bgbl:"BGBl Arbeitsrecht",eu:"EU – eIDAS & Pay Transparency"};
-  currentReport.bereiche.forEach(b=>{
-    if(y > 250){ doc.addPage(); y=15; drawBg(); }
-    const bc = pm[b.prio]||pm.MITTEL;
-    doc.setFillColor(17,30,46);
-    doc.roundedRect(M, y, CW, 38, 2, 2, "F");
-    doc.setFillColor(...bc);
-    doc.rect(M, y, 2, 38, "F");
-    doc.setFontSize(10); doc.setTextColor(247,245,240); doc.setFont("helvetica","bold");
-    doc.text(b.headline||"", M+5, y+6);
-    doc.setFontSize(8); doc.setTextColor(...bc); doc.setFont("helvetica","bold");
-    doc.text(b.prio, W-M-20, y+6);
-    doc.setFontSize(8); doc.setTextColor(138,153,170); doc.setFont("helvetica","normal");
-    doc.text(areaMap[b.id]||b.id, M+5, y+11);
-    // Three columns
-    const cols = [["BEFUND",b.befund],["AUSWIRKUNG",b.auswirkung],["AKTION",b.aktion]];
-    const cw3 = CW/3;
-    cols.forEach(([lbl,val],ci)=>{
-      const cx = M+5 + ci*cw3;
-      doc.setFontSize(7); doc.setTextColor(138,153,170); doc.setFont("helvetica","bold");
-      doc.text(lbl, cx, y+17);
-      doc.setFontSize(8); doc.setTextColor(197,208,220); doc.setFont("helvetica","normal");
-      const vlines = doc.splitTextToSize(String(val||""), cw3-4);
-      vlines.slice(0,2).forEach((vl,vi)=>doc.text(vl, cx, y+22+vi*4));
-    });
-    doc.setFontSize(8); doc.setTextColor(...bc); doc.setFont("helvetica","bold");
-    doc.text("Deadline: "+b.deadline, M+5+2*cw3, y+34);
-    y += 44;
-  });
-
-  // Footer
-  if(y > 270){ doc.addPage(); drawBg(); y=15; }
-  rule([46,64,96]);
-  doc.setFontSize(8); doc.setTextColor(138,153,170); doc.setFont("helvetica","normal");
-  doc.text("KV-Monitor Agent · Automatisch generiert · "+d, M, y+4);
-
-  doc.save("KV-Monitor-Report-"+d.replace(/\./g,"-")+".pdf");
-}
-
-async function startAgent(){
-  if(!getApiKey()){ showApiScreen(); return; }
-  results={};currentReport=null;
-  document.getElementById("idle-screen").style.display="none";
-  document.getElementById("main-ui").style.display="block";
-  document.getElementById("terminal").innerHTML='<span class="cursor">█</span>';
-  document.getElementById("report-loading").style.display="block";
-  document.getElementById("report-content").style.display="none";
-  document.getElementById("report-content").innerHTML="";
-  document.getElementById("areas-content").innerHTML="";
-  document.getElementById("status-badge").innerHTML='<span class="badge badge-running">● AGENT AKTIV</span>';
-  switchTab("logs");
-
-  addLog("▶ KV-Monitor Agent gestartet","#7EC8E3");
-  addLog("Datum: "+new Date().toLocaleDateString("de-AT"),"#7EC8E3");
-  addLog("─────────────────────────────","#2E4060");
-
-  for(const area of AREAS){
-    addLog("","");
-    addLog(area.icon+" "+area.label,"#F39C12");
-    addLog("→ Web-Recherche läuft...","#8A99AA");
-    try{
-      const text = await callClaude(
-        `Recherchiere JETZT die aktuellsten Entwicklungen zu: "${area.query}"\n\nLiefere:\n1. Top 3 aktuelle Entwicklungen mit Datum\n2. Konkrete Auswirkung auf Payroll-Software österreichische Hotellerie\n3. Handlungsempfehlung + Deadline\n4. Dringlichkeit: KRITISCH / HOCH / MITTEL / INFO`,
-        "Du bist Payroll-Compliance-Experte für österreichische Hotellerie und Gastronomie. Antworte NUR auf Deutsch. Konkret, keine Floskeln."
-      );
-      const prio=getPrio(text);
-      results[area.id]={text,prio};
-      refreshAreas();
-      const col=prio==="KRITISCH"?"#E74C3C":prio==="HOCH"?"#F39C12":"#27AE60";
-      addLog("✓ Abgeschlossen – Priorität: "+prio,col);
-    }catch(e){
-      addLog("✗ Fehler: "+e.message,"#E74C3C");
-      results[area.id]={text:"Fehler: "+e.message,prio:"INFO"};
-      refreshAreas();
-    }
-  }
-
-  addLog("","");
-  addLog("─────────────────────────────","#2E4060");
-  addLog("📋 Executive Report wird generiert...","#7EC8E3");
-
-  try{
-    // Truncate each area text to keep prompt short
-    const combined=AREAS.map(a=>{
-      const r=results[a.id]||{};
-      const short=(r.text||"Keine Daten").slice(0,400);
-      return `=== ${a.label} ===\nPrio: ${r.prio||"?"}\n${short}`;
-    }).join("\n\n---\n");
-    const json = await callClaude(
-      `Erstelle Executive Report aus:\n\n${combined}\n\nAntworte NUR als reines JSON ohne Backticks:\n{"zusammenfassung":"...","gesamtrisiko":"KRITISCH|HOCH|MITTEL|INFO","bereiche":[{"id":"kv|elda|bgbl|eu","prio":"...","headline":"...","befund":"...","auswirkung":"...","aktion":"...","deadline":"..."}],"sofort":["...","...","..."],"naechste_pruefung":"..."}`,
-      "Senior Payroll Compliance Officer Österreich. Antworte NUR als reines JSON, kein Text davor oder danach, keine Backticks.",
-      "report"
-    );
-    currentReport=json;
-    renderReport(json);
-    document.getElementById("status-badge").innerHTML='<span class="badge badge-done">✓ FERTIG</span>';
-    addLog("✓ Report fertig – "+json.gesamtrisiko,json.gesamtrisiko==="KRITISCH"?"#E74C3C":"#27AE60");
-    addLog("▶ Agent beendet","#7EC8E3");
-    switchTab("report");
-  }catch(e){
-    addLog("✗ Report-Fehler: "+e.message,"#E74C3C");
-    document.getElementById("report-loading").innerHTML=`<div class="error-box"><strong>Fehler:</strong> ${e.message}</div>`;
-    document.getElementById("status-badge").innerHTML='<span class="badge badge-error">✗ FEHLER</span>';
-  }
-}
-
-async function startFullReport(){
-  const kvResult = results["kv"];
-  if(!kvResult || !kvResult.text){
-    document.getElementById("fullreport-empty").innerHTML = '<div style="text-align:center;padding:40px;color:#E74C3C">Bitte zuerst „Jetzt prüfen" ausführen.</div>';
-    return;
-  }
-  const content = document.getElementById("fullreport-content");
-  const status = document.getElementById("fullreport-status");
-  const empty = document.getElementById("fullreport-empty");
-
-  content.style.display = "block";
-  content.textContent = "";
-  empty.style.display = "none";
-  status.textContent = "⏳ Vollbericht wird generiert...";
-
-  try {
-    const response = await fetch("/api/fullreport_stream", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        api_key: getApiKey(),
-        area_text: kvResult.text,
-        area_label: "KV Hotellerie & Gastronomie"
+        api_key: getKey(),
+        area_id: area.id,
+        area_text: result.text,
       })
     });
+    if(!resp.ok) throw new Error("Server "+resp.status);
 
-    if(!response.ok) throw new Error("Server Fehler: " + response.status);
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf="";
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
+    genEl.style.display="none";
 
     while(true){
-      const {done, value} = await reader.read();
+      const {done,value} = await reader.read();
       if(done) break;
-      buffer += decoder.decode(value, {stream: true});
-      const lines = buffer.split("\n");
-      buffer = lines.pop();
+      buf += dec.decode(value,{stream:true});
+      const lines = buf.split("\n");
+      buf = lines.pop();
       for(const line of lines){
         if(line.startsWith("data: ")){
           try{
-            const evt = JSON.parse(line.slice(6));
-            if(evt.text) content.textContent += evt.text;
-            if(evt.done){ status.textContent = "✓ Fertig"; }
-            if(evt.error){ status.textContent = "✗ " + evt.error; }
-          } catch(e){}
+            const evt=JSON.parse(line.slice(6));
+            if(evt.text){ rawText+=evt.text; mdEl.innerHTML=renderMd(rawText); mdEl.scrollIntoView({behavior:"smooth",block:"end"}); }
+            if(evt.done){ addSources(mdEl, area); }
+            if(evt.error){ mdEl.innerHTML+=`<p style="color:#E74C3C">Fehler: ${evt.error}</p>`; }
+          }catch(e){}
         }
       }
-      content.scrollTop = content.scrollHeight;
     }
-    status.textContent = "✓ Vollbericht fertig";
-  } catch(e){
-    status.textContent = "✗ Fehler: " + e.message;
-    content.textContent += "\n\nFehler: " + e.message;
+  }catch(e){
+    genEl.style.display="none";
+    mdEl.innerHTML=`<p style="color:#E74C3C">Fehler: ${e.message}</p>`;
   }
 }
 
+function renderMd(text){
+  return text
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+    .replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/^(?!<[hup])/gm,'')
+    .split('\n').map(l=>l.match(/^<(h[23]|ul|li)/)? l:`<p>${l}</p>`)
+    .join('')
+    .replace(/<p><\/p>/g,'')
+    .replace(/<p>(<[hul])/g,'$1')
+    .replace(/(<\/[hul][^>]*>)<\/p>/g,'$1');
+}
+
+function addSources(el, area){
+  const sourceMap = {
+    kv:   ["WKO Kollektivvertragsrecht (wko.at)","AK Österreich – Arbeitsrecht (arbeiterkammer.at)","ÖGB Kollektivvertragsverhandlungen (oegb.at)"],
+    elda: ["ÖGK ELDA Portal (elda.at)","Sozialversicherung Österreich (sozialversicherung.at)","ELDA Transfer Webservice Dokumentation"],
+    bgbl: ["Rechtsinformationssystem des Bundes (ris.bka.gv.at)","Bundesgesetzblatt Österreich (bgbl.at)","Parlamentarische Materialien (parlament.gv.at)"],
+    eu:   ["EUR-Lex – EU-Recht (eur-lex.europa.eu)","BMJ Österreich – eIDAS Umsetzung (bmj.gv.at)","EU-Kommission Pay Transparency Directive"],
+  };
+  const sources = sourceMap[area.id]||[];
+  if(!sources.length) return;
+  const div = document.createElement("div");
+  div.className="sources";
+  div.innerHTML=`<div class="sources-title">Quellen & Referenzen</div>`+
+    sources.map(s=>`<div class="source-item">${s}</div>`).join("");
+  el.appendChild(div);
+}
 </script>
 </body>
 </html>
