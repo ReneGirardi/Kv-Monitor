@@ -8,126 +8,131 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0F2236;color:#E8EEF4;font-family:-apple-system,system-ui,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column}
 
-/* ── HEADER ── */
-header{background:#0A1A2E;border-bottom:1px solid #1E3A5C;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.header-brand{display:flex;align-items:center;gap:12px}
-.header-logo{width:32px;height:32px;background:#C0392B;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;letter-spacing:-1px}
-.header-name{font-size:15px;font-weight:700;color:#E8EEF4}
-.header-sub{font-size:11px;color:#5A7A9A;margin-top:1px}
-.header-right{display:flex;align-items:center;gap:10px}
-.key-btn{background:none;border:1px solid #1E3A5C;color:#5A7A9A;padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer}
-.key-btn:active{background:#1E3A5C}
+/* HEADER */
+header{background:#0A1A2E;border-bottom:2px solid #C0392B;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hbrand{display:flex;align-items:center;gap:12px}
+.hlogo{width:34px;height:34px;background:#C0392B;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;letter-spacing:-1px}
+.hname{font-size:15px;font-weight:700}
+.hsub{font-size:10px;color:#5A7A9A;margin-top:1px}
+.hright{display:flex;align-items:center;gap:10px}
+.key-btn{background:none;border:1px solid #1E3A5C;color:#5A7A9A;padding:5px 11px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600}
 #run-status{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;display:none}
-.status-running{background:#1A2E45;color:#F39C12;border:1px solid #F39C12;display:flex!important;align-items:center;gap:6px}
-.status-done{background:#0A2A1A;color:#27AE60;border:1px solid #27AE60;display:block!important}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.dot{width:7px;height:7px;border-radius:50%;background:#F39C12;animation:pulse 1s infinite}
+.dot{width:7px;height:7px;border-radius:50%;background:#F39C12;animation:pulse 1s infinite;display:inline-block;margin-right:5px}
 
-/* ── TABS ── */
-.tabs{background:#0A1A2E;border-bottom:1px solid #1E3A5C;display:flex;padding:0 24px;flex-shrink:0}
-.tab{background:none;border:none;border-bottom:2px solid transparent;color:#5A7A9A;padding:12px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:color .15s}
+/* TABS */
+.tabs{background:#0A1A2E;border-bottom:1px solid #1E3A5C;display:flex;padding:0 20px;flex-shrink:0}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:#5A7A9A;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:color .15s;-webkit-tap-highlight-color:transparent}
 .tab.active{border-bottom-color:#C0392B;color:#E8EEF4}
-.tab:hover:not(.active){color:#A0B8CC}
 
-/* ── MAIN ── */
-.content{flex:1;overflow-y:auto;padding:24px 20px;max-width:900px;width:100%;margin:0 auto}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:22px 18px;max-width:880px;width:100%;margin:0 auto}
 
-/* ── API KEY SCREEN ── */
-#screen-apikey{text-align:center;padding:60px 16px}
-#screen-apikey h2{font-size:20px;font-weight:800;margin:14px 0 10px}
-#screen-apikey p{color:#5A7A9A;font-size:14px;max-width:360px;margin:0 auto 24px;line-height:1.6}
-.key-card{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:20px;max-width:440px;margin:0 auto 20px;text-align:left}
-.field-label{font-size:10px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
-.key-field{width:100%;background:#0F2236;border:1px solid #1E3A5C;border-radius:6px;padding:10px 13px;color:#E8EEF4;font-size:13px;font-family:monospace;outline:none;-webkit-appearance:none}
+/* API KEY */
+#screen-apikey{flex:1;overflow-y:auto;display:flex;align-items:center;justify-content:center;padding:24px}
+.apikey-card{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:12px;padding:32px;max-width:420px;width:100%;text-align:center}
+.apikey-card h2{font-size:18px;font-weight:800;margin:14px 0 8px}
+.apikey-card p{color:#5A7A9A;font-size:13px;line-height:1.6;margin-bottom:20px}
+.field-label{font-size:10px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;text-align:left}
+.key-field{width:100%;background:#0F2236;border:1px solid #1E3A5C;border-radius:6px;padding:10px 13px;color:#E8EEF4;font-size:12px;font-family:monospace;outline:none;margin-bottom:6px}
 .key-field:focus{border-color:#C0392B}
-.hint{font-size:11px;color:#5A7A9A;margin-top:7px}
+.hint{font-size:11px;color:#5A7A9A;text-align:left;margin-bottom:18px}
 
-/* ── BUTTONS ── */
-.btn{border:none;border-radius:8px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
-.btn:active{opacity:.8}
-.btn-primary{background:#C0392B;color:#fff;padding:12px 28px;font-size:14px}
-.btn-outline{background:none;border:1px solid #1E3A5C;color:#A0B8CC;padding:9px 18px;font-size:13px}
+/* BUTTONS */
+.btn{border:none;border-radius:8px;font-weight:700;cursor:pointer;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+.btn:active{opacity:.75}
+.btn-primary{background:#C0392B;color:#fff;padding:11px 26px;font-size:14px;width:100%}
+.btn-start{background:#C0392B;color:#fff;padding:12px 30px;font-size:14px;border-radius:8px;font-weight:700;cursor:pointer;border:none}
+.btn-start:disabled{opacity:.5;cursor:not-allowed}
 
-/* ── RECHERCHE TAB ── */
-.section-title{font-size:11px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
-.area-checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-@media(max-width:500px){.area-checks{grid-template-columns:1fr}}
-.area-check{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:9px;padding:13px 15px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
-.area-check.selected{border-color:#C0392B;background:#150A0A}
-.area-check input{display:none}
-.check-box{width:18px;height:18px;border:2px solid #1E3A5C;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.area-check.selected .check-box{background:#C0392B;border-color:#C0392B}
-.check-tick{color:#fff;font-size:11px;font-weight:900}
-.area-icon{font-size:19px}
-.area-info-label{font-size:13px;font-weight:600;color:#E8EEF4}
-.area-info-sub{font-size:10px;color:#5A7A9A;margin-top:2px}
-.start-row{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+/* SECTION LABELS */
+.slabel{font-size:10px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
 
-/* ── LOG ── */
-.log-box{background:#060F1A;border:1px solid #1E3A5C;border-radius:9px;padding:14px;font-family:'Courier New',monospace;font-size:12px;min-height:180px;max-height:320px;overflow-y:auto}
+/* KV SELECT CARD */
+.select-card{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:18px 20px;margin-bottom:18px}
+.select-card h3{font-size:13px;font-weight:700;color:#E8EEF4;margin-bottom:4px}
+.select-card p{font-size:12px;color:#5A7A9A;margin-bottom:14px;line-height:1.5}
+.kv-select{width:100%;background:#0F2236;border:1px solid #1E3A5C;border-radius:7px;padding:10px 13px;color:#E8EEF4;font-size:13px;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A7A9A' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.kv-select:focus{border-color:#C0392B}
+.kv-select option{background:#0A1A2E;color:#E8EEF4;padding:6px}
+.kv-select optgroup{color:#5A7A9A;font-size:11px}
+
+.start-row{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.selected-info{font-size:12px;color:#5A7A9A;flex:1}
+.selected-info strong{color:#E8EEF4}
+
+/* LOG */
+.log-box{background:#060F1A;border:1px solid #1E3A5C;border-radius:9px;padding:14px;font-family:'Courier New',monospace;font-size:12px;min-height:120px;max-height:220px;overflow-y:auto}
 .log-line{margin-bottom:3px;line-height:1.5}
 .log-ts{color:#2A4A6A;margin-right:8px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 .cursor{color:#F39C12;animation:blink 1s infinite}
 
-/* ── BERICHT TAB ── */
-#screen-bericht-empty{text-align:center;padding:60px 16px;color:#5A7A9A}
-.bericht-header{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:16px 20px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.bericht-ts{font-size:11px;color:#5A7A9A}
-.bericht-ts span{color:#E8EEF4;font-weight:600}
-.bericht-areas{display:flex;gap:6px;flex-wrap:wrap}
-.area-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#0F2236;border:1px solid #1E3A5C;color:#A0B8CC}
+/* BERICHT */
+#bericht-empty{text-align:center;padding:60px 16px;color:#5A7A9A}
+.bericht-meta{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+.bericht-meta-left .label{font-size:10px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.bericht-meta-left .kv-name{font-size:14px;font-weight:700;color:#E8EEF4}
+.bericht-meta-right{text-align:right;font-size:12px;color:#5A7A9A}
+.bericht-meta-right strong{color:#E8EEF4;display:block;font-size:13px}
 
-/* ── STREAMING CONTENT ── */
-.stream-area{margin-bottom:20px}
-.stream-area-header{background:#0A1A2E;border:1px solid #1E3A5C;border-left:3px solid #C0392B;border-radius:8px;padding:12px 16px;margin-bottom:0;display:flex;align-items:center;justify-content:space-between}
-.stream-area-title{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px}
-.prio-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px}
-.stream-body{background:#0A1A2E;border:1px solid #1E3A5C;border-top:none;border-radius:0 0 8px 8px;padding:18px 20px}
+/* STREAM CONTENT */
+.stream-box{background:#0A1A2E;border:1px solid #1E3A5C;border-radius:10px;padding:20px 22px;font-size:13px;line-height:1.8}
+.generating{display:flex;align-items:center;gap:8px;color:#5A7A9A;font-size:12px;padding:8px 0}
 
-/* ── MARKDOWN-LIKE RENDERING ── */
-.md-content h2{font-size:13px;font-weight:700;color:#C0392B;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid #1E3A5C}
-.md-content h2:first-child{margin-top:0}
-.md-content h3{font-size:13px;font-weight:700;color:#A0B8CC;margin:12px 0 5px}
-.md-content p{font-size:13px;line-height:1.75;color:#C0D0E0;margin-bottom:8px}
-.md-content ul,.md-content ol{margin:6px 0 10px 18px}
-.md-content li{font-size:13px;line-height:1.7;color:#C0D0E0;margin-bottom:3px}
-.md-content strong{color:#E8EEF4;font-weight:700}
-.md-content .sources{background:#060F1A;border:1px solid #1E3A5C;border-radius:7px;padding:12px 14px;margin-top:14px}
-.md-content .sources-title{font-size:10px;font-weight:700;color:#5A7A9A;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
-.md-content .source-item{font-size:12px;color:#5A7A9A;margin-bottom:3px}
-.md-content .source-item::before{content:"→ ";color:#C0392B}
-.generating{display:flex;align-items:center;gap:8px;font-size:12px;color:#5A7A9A;padding:8px 0}
-.gen-dot{width:6px;height:6px;border-radius:50%;background:#C0392B;animation:pulse 1s infinite}
+/* MARKDOWN */
+.md h2{font-size:14px;font-weight:700;color:#C0392B;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 8px;padding-bottom:5px;border-bottom:1px solid #1E3A5C}
+.md h2:first-child{margin-top:0}
+.md h3{font-size:13px;font-weight:700;color:#A0B8CC;margin:14px 0 6px}
+.md h4{font-size:12px;font-weight:700;color:#7A9AB8;margin:10px 0 4px}
+.md p{font-size:13px;line-height:1.8;color:#C0D0E0;margin-bottom:8px}
+.md ul,.md ol{margin:6px 0 10px 20px}
+.md li{font-size:13px;line-height:1.75;color:#C0D0E0;margin-bottom:4px}
+.md strong{color:#E8EEF4;font-weight:700}
+.md em{color:#A0B8CC;font-style:italic}
+.md hr{border:none;border-top:1px solid #1E3A5C;margin:16px 0}
+.md .alt-block{background:#060F1A;border-left:3px solid #1E3A5C;border-radius:0 6px 6px 0;padding:8px 12px;margin:6px 0;font-size:12px;color:#7A9AB8}
+.md .neu-block{background:#0A1F0A;border-left:3px solid #27AE60;border-radius:0 6px 6px 0;padding:8px 12px;margin:6px 0;font-size:12px;color:#A0D8A0}
+.md .bewertung-w{background:#2D1010;border-left:3px solid #E74C3C;border-radius:0 6px 6px 0;padding:6px 12px;margin:4px 0;font-size:11px;color:#E74C3C;font-weight:700}
+.md .bewertung-n{background:#0A1A2E;border-left:3px solid #5A7A9A;border-radius:0 6px 6px 0;padding:6px 12px;margin:4px 0;font-size:11px;color:#5A7A9A}
+.md a{color:#4A9FD4;text-decoration:none;border-bottom:1px solid #1E5A7A}
+.md a:hover{color:#7EC8E3}
+.sources-box{background:#060F1A;border:1px solid #1E3A5C;border-radius:8px;padding:14px 16px;margin-top:20px}
+.sources-title{font-size:10px;color:#5A7A9A;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.source-link{display:block;font-size:12px;color:#4A9FD4;margin-bottom:6px;text-decoration:none;border-bottom:1px solid #1E3A5C;padding-bottom:6px}
+.source-link:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
+.source-link:hover{color:#7EC8E3}
+.source-link::before{content:"→ ";color:#C0392B}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-  <div class="header-brand">
-    <div class="header-logo">PS</div>
+  <div class="hbrand">
+    <div class="hlogo">PS</div>
     <div>
-      <div class="header-name">KV-Monitor Agent</div>
-      <div class="header-sub">personalsoftware.at · Payroll Compliance AT</div>
+      <div class="hname">KV-Monitor Agent</div>
+      <div class="hsub">personalsoftware.at · Kollektivvertrags-Analyse AT</div>
     </div>
   </div>
-  <div class="header-right">
-    <div id="run-status"></div>
+  <div class="hright">
+    <span id="run-status"></span>
     <button class="key-btn" onclick="showApiKey()">🔑 API Key</button>
   </div>
 </header>
 
 <!-- API KEY SCREEN -->
-<div id="screen-apikey" style="flex:1;overflow-y:auto;padding:24px 20px">
-  <div style="font-size:38px">🔑</div>
-  <h2>API Key eingeben</h2>
-  <p>Einmalig eingeben – wird lokal gespeichert.</p>
-  <div class="key-card">
+<div id="screen-apikey" style="display:none">
+  <div class="apikey-card">
+    <div style="font-size:36px">🔑</div>
+    <h2>API Key eingeben</h2>
+    <p>Einmalig eingeben – wird lokal im Browser gespeichert.</p>
     <div class="field-label">Anthropic API Key</div>
     <input class="key-field" type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <div class="hint">console.anthropic.com → API Keys</div>
+    <button class="btn btn-primary" onclick="saveKey()">✓ Speichern & starten</button>
   </div>
-  <button class="btn btn-primary" onclick="saveKey()">✓ Speichern & starten</button>
 </div>
 
 <!-- MAIN APP -->
@@ -137,56 +142,104 @@ header{background:#0A1A2E;border-bottom:1px solid #1E3A5C;padding:0 24px;height:
     <button class="tab" onclick="switchTab('bericht')">📋 Bericht</button>
   </div>
 
-  <!-- RECHERCHE -->
+  <!-- TAB: RECHERCHE -->
   <div id="tab-recherche" class="content">
-    <div class="section-title">Überwachungsbereiche auswählen</div>
-    <div class="areas-grid area-checks" id="area-checks"></div>
-
-    <div class="start-row">
-      <button class="btn btn-primary" id="start-btn" onclick="startAgent()">⚡ Recherche starten</button>
-      <button class="btn btn-outline" onclick="toggleAll()">Alle an/ab</button>
+    <div class="select-card">
+      <h3>Basis-Kollektivvertrag auswählen</h3>
+      <p>Wähle den derzeit in deinem System hinterlegten KV. Der Agent prüft ob ein neuerer KV vorliegt und zeigt alle Änderungen auf.</p>
+      <div class="field-label">Kollektivvertrag</div>
+      <select class="kv-select" id="kv-select" onchange="onKvChange()">
+        <option value="">– Bitte auswählen –</option>
+      </select>
     </div>
 
-    <div class="section-title">Agent-Log</div>
+    <div class="start-row">
+      <button class="btn-start" id="start-btn" onclick="startCheck()" disabled>⚡ KV-Analyse starten</button>
+      <div class="selected-info" id="selected-info">Kein KV ausgewählt</div>
+    </div>
+
+    <div class="slabel">Agent-Log</div>
     <div class="log-box" id="log-box"><span class="cursor">█</span></div>
   </div>
 
-  <!-- BERICHT -->
+  <!-- TAB: BERICHT -->
   <div id="tab-bericht" class="content" style="display:none">
-    <div id="bericht-empty" style="text-align:center;padding:60px 16px;color:#5A7A9A">
+    <div id="bericht-empty">
       <div style="font-size:32px;margin-bottom:10px">📋</div>
-      <div>Zuerst Recherche starten – dann erscheint hier der Bericht</div>
+      <div>Zuerst einen KV auswählen und Analyse starten</div>
     </div>
     <div id="bericht-content" style="display:none">
-      <div class="bericht-header">
-        <div>
-          <div class="field-label">Compliance Bericht</div>
-          <div class="bericht-ts">Erstellt: <span id="bericht-ts-val"></span></div>
+      <div class="bericht-meta">
+        <div class="bericht-meta-left">
+          <div class="label">Analyse</div>
+          <div class="kv-name" id="bericht-kv-name"></div>
         </div>
-        <div class="bericht-areas" id="bericht-area-badges"></div>
+        <div class="bericht-meta-right">
+          <span>Erstellt</span>
+          <strong id="bericht-ts"></strong>
+        </div>
       </div>
-      <div id="bericht-stream-container"></div>
+      <div class="stream-box">
+        <div class="generating" id="gen-indicator"><span class="dot"></span>Bericht wird generiert...</div>
+        <div class="md" id="md-content"></div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const AREAS = [
-  {id:"kv",  icon:"🏨", label:"KV Hotellerie & Gastronomie", sub:"WKO · AK · ÖGB",   query:"Kollektivvertrag Hotellerie Gastronomie Österreich 2025 Lohnerhöhung Aufsaugklausel Stufensystem aktuell"},
-  {id:"elda",icon:"📡", label:"ELDA / Transfer Webservice",  sub:"ÖGK · ELDA",        query:"ELDA Abschaltung 2027 Transfer Webservice V4 ÖGK Nachfolge Umstieg Österreich 2025"},
-  {id:"bgbl",icon:"⚖️", label:"BGBl Arbeitsrecht",           sub:"BGBl · RIS · Parl.", query:"Bundesgesetzblatt Österreich Arbeitsrecht 2025 Änderungen Dienstvertrag Lohnrecht aktuell"},
-  {id:"eu",  icon:"🇪🇺", label:"EU – eIDAS & Pay Transparency",sub:"EUR-Lex · BMJ",   query:"eIDAS 2 Pay Transparency Directive 2023/970 Umsetzung Österreich 2025"},
-];
-const PM = {
-  KRITISCH:{c:"#E74C3C",bg:"#2D1010",border:"#E74C3C"},
-  HOCH:    {c:"#F39C12",bg:"#2D2010",border:"#F39C12"},
-  MITTEL:  {c:"#3498DB",bg:"#101828",border:"#3498DB"},
-  INFO:    {c:"#5A7A9A",bg:"#0A1A2E",border:"#1E3A5C"},
+// ── DATA ──────────────────────────────────────────────────────────────────
+let kvList = [];
+let selectedKv = null;
+let isRunning = false;
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+window.onload = async function(){
+  await loadKvList();
+  getKey() ? showApp() : showApiKeyScreen();
 };
 
-let selected = new Set(AREAS.map(a=>a.id));
-let results  = {};
-let running  = false;
+async function loadKvList(){
+  try{
+    const r = await fetch("/api/kv_list");
+    kvList = await r.json();
+    buildDropdown();
+  }catch(e){ console.error("KV list error:", e); }
+}
+
+function buildDropdown(){
+  const sel = document.getElementById("kv-select");
+  const groups = {};
+  kvList.forEach(kv => {
+    if(!groups[kv.group]) groups[kv.group] = [];
+    groups[kv.group].push(kv);
+  });
+  Object.entries(groups).forEach(([grp, items]) => {
+    const og = document.createElement("optgroup");
+    og.label = grp;
+    items.forEach(kv => {
+      const o = document.createElement("option");
+      o.value = kv.id;
+      o.textContent = kv.label;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function onKvChange(){
+  const id = document.getElementById("kv-select").value;
+  selectedKv = kvList.find(k => k.id === id) || null;
+  const btn = document.getElementById("start-btn");
+  const info = document.getElementById("selected-info");
+  if(selectedKv){
+    btn.disabled = false;
+    info.innerHTML = `Ausgewählt: <strong>${selectedKv.label}</strong>`;
+  } else {
+    btn.disabled = true;
+    info.textContent = "Kein KV ausgewählt";
+  }
+}
 
 // ── API KEY ────────────────────────────────────────────────────────────────
 function getKey(){ return localStorage.getItem("psat_api_key")||""; }
@@ -196,238 +249,203 @@ function saveKey(){
   localStorage.setItem("psat_api_key", v);
   showApp();
 }
-function showApiKey(){
-  document.getElementById("screen-apikey").style.display="block";
+function showApiKeyScreen(){
+  document.getElementById("screen-apikey").style.display="flex";
   document.getElementById("app").style.display="none";
+}
+function showApiKey(){
+  showApiKeyScreen();
   const k=getKey(); if(k) document.getElementById("api-key-input").value=k;
 }
 function showApp(){
   document.getElementById("screen-apikey").style.display="none";
   document.getElementById("app").style.display="flex";
 }
-window.onload=()=>{ getKey() ? showApp() : showApiKey(); buildAreaChecks(); };
 
-// ── AREA CHECKBOXES ────────────────────────────────────────────────────────
-function buildAreaChecks(){
-  const c = document.getElementById("area-checks");
-  c.innerHTML = AREAS.map(a=>`
-    <div class="area-check selected" id="check-${a.id}" onclick="toggleArea('${a.id}')">
-      <div class="check-box"><span class="check-tick">✓</span></div>
-      <span class="area-icon">${a.icon}</span>
-      <div>
-        <div class="area-info-label">${a.label}</div>
-        <div class="area-info-sub">${a.sub}</div>
-      </div>
-    </div>`).join("");
-}
-function toggleArea(id){
-  if(running) return;
-  if(selected.has(id)){ selected.delete(id); document.getElementById("check-"+id).classList.remove("selected"); }
-  else { selected.add(id); document.getElementById("check-"+id).classList.add("selected"); }
-}
-function toggleAll(){
-  if(running) return;
-  if(selected.size===AREAS.length){ selected.clear(); AREAS.forEach(a=>document.getElementById("check-"+a.id).classList.remove("selected")); }
-  else { AREAS.forEach(a=>{ selected.add(a.id); document.getElementById("check-"+a.id).classList.add("selected"); }); }
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(name){
+  ["recherche","bericht"].forEach(n=>{
+    document.getElementById("tab-"+n).style.display = n===name ? "block":"none";
+  });
+  document.querySelectorAll(".tab").forEach((b,i)=>{
+    b.classList.toggle("active", ["recherche","bericht"][i]===name);
+  });
 }
 
-// ── LOG ────────────────────────────────────────────────────────────────────
+// ── LOG ───────────────────────────────────────────────────────────────────
 function ts(){ return new Date().toLocaleTimeString("de-AT",{hour12:false}); }
 function log(text, color){
   const box = document.getElementById("log-box");
   const cur = box.querySelector(".cursor");
-  if(!text){ const s=document.createElement("div"); s.style.height="7px"; box.insertBefore(s,cur); box.scrollTop=box.scrollHeight; return; }
-  const d = document.createElement("div");
-  d.className="log-line";
+  if(!text){
+    const s=document.createElement("div"); s.style.height="7px";
+    box.insertBefore(s,cur); box.scrollTop=box.scrollHeight; return;
+  }
+  const d=document.createElement("div"); d.className="log-line";
   d.innerHTML=`<span class="log-ts">${ts()}</span><span style="color:${color||"#5A7A9A"}">${text}</span>`;
   box.insertBefore(d,cur); box.scrollTop=box.scrollHeight;
 }
 
-// ── TAB ────────────────────────────────────────────────────────────────────
-function switchTab(name){
-  ["recherche","bericht"].forEach(n=>{
-    document.getElementById("tab-"+n).style.display=n===name?"block":"none";
-  });
-  document.querySelectorAll(".tab").forEach((b,i)=>{
-    b.classList.toggle("active",["recherche","bericht"][i]===name);
-  });
-}
+// ── START CHECK ───────────────────────────────────────────────────────────
+async function startCheck(){
+  if(isRunning || !selectedKv) return;
+  if(!getKey()){ showApiKeyScreen(); return; }
 
-// ── RECHERCHE ──────────────────────────────────────────────────────────────
-async function startAgent(){
-  if(running) return;
-  if(!getKey()){ showApiKey(); return; }
-  if(selected.size===0){ alert("Bitte mindestens einen Bereich auswählen."); return; }
+  isRunning = true;
+  document.getElementById("start-btn").disabled = true;
+  document.getElementById("log-box").innerHTML = '<span class="cursor">█</span>';
+  document.getElementById("bericht-empty").style.display = "block";
+  document.getElementById("bericht-content").style.display = "none";
+  document.getElementById("md-content").innerHTML = "";
 
-  running=true; results={};
-  document.getElementById("log-box").innerHTML='<span class="cursor">█</span>';
-  document.getElementById("bericht-empty").style.display="block";
-  document.getElementById("bericht-content").style.display="none";
-  document.getElementById("bericht-stream-container").innerHTML="";
+  const status = document.getElementById("run-status");
+  status.style.display = "inline-flex";
+  status.style.background = "#1A2E45";
+  status.style.color = "#F39C12";
+  status.style.border = "1px solid #F39C12";
+  status.style.borderRadius = "20px";
+  status.style.padding = "4px 12px";
+  status.style.fontSize = "11px";
+  status.style.fontWeight = "700";
+  status.style.alignItems = "center";
+  status.innerHTML = '<span class="dot"></span> ANALYSE LÄUFT';
 
-  const statusEl = document.getElementById("run-status");
-  statusEl.className="status-running"; statusEl.style.display="flex";
-  statusEl.innerHTML='<div class="dot"></div> AGENT AKTIV';
+  log("▶ KV-Monitor Agent gestartet", "#7EC8E3");
+  log("Datum: " + new Date().toLocaleDateString("de-AT"), "#7EC8E3");
+  log("", "");
+  log("📋 Ausgewählter KV: " + selectedKv.label, "#F39C12");
+  log("→ Prüfe ob neuerer Kollektivvertrag vorliegt...", "#5A7A9A");
+  log("→ Bericht wird generiert – bitte warten...", "#5A7A9A");
 
-  log("▶ KV-Monitor Agent gestartet","#7EC8E3");
-  log("Datum: "+new Date().toLocaleDateString("de-AT"),"#7EC8E3");
-  log("Bereiche: "+[...selected].map(id=>AREAS.find(a=>a.id===id)?.label).join(", "),"#5A7A9A");
-  log("","");
-
-  const toRun = AREAS.filter(a=>selected.has(a.id));
-
-  for(const area of toRun){
-    log("","");
-    log(area.icon+" "+area.label,"#F39C12");
-    log("→ Recherche läuft...","#5A7A9A");
-    try{
-      const r = await fetch("/api/research",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({api_key:getKey(), area_id:area.id})
-      });
-      const d = await r.json();
-      if(d.error) throw new Error(d.error);
-      results[area.id]={text:d.text, prio:d.prio};
-      const col=d.prio==="KRITISCH"?"#E74C3C":d.prio==="HOCH"?"#F39C12":"#27AE60";
-      log("✓ Abgeschlossen – "+d.prio, col);
-    }catch(e){
-      log("✗ Fehler: "+e.message,"#E74C3C");
-      results[area.id]={text:"Fehler: "+e.message, prio:"INFO"};
-    }
-  }
-
-  log("","");
-  log("─────────────────────────────────","#1E3A5C");
-  log("✓ Recherche abgeschlossen – Bericht wird generiert...","#7EC8E3");
-
-  statusEl.className="status-done"; statusEl.innerHTML="✓ FERTIG";
-
-  // Switch to bericht and start streaming
+  // Switch to bericht tab and start streaming
   switchTab("bericht");
-  await generateBericht(toRun);
-  running=false;
-}
 
-// ── BERICHT STREAMING ──────────────────────────────────────────────────────
-async function generateBericht(areas){
   const now = new Date();
-  document.getElementById("bericht-ts-val").textContent =
-    now.toLocaleDateString("de-AT")+" "+now.toLocaleTimeString("de-AT",{hour12:false});
+  document.getElementById("bericht-ts").textContent =
+    now.toLocaleDateString("de-AT") + " " + now.toLocaleTimeString("de-AT",{hour12:false});
+  document.getElementById("bericht-kv-name").textContent = selectedKv.label;
+  document.getElementById("bericht-empty").style.display = "none";
+  document.getElementById("bericht-content").style.display = "block";
+  document.getElementById("gen-indicator").style.display = "flex";
 
-  // Area badges
-  document.getElementById("bericht-area-badges").innerHTML =
-    areas.map(a=>`<span class="area-badge">${a.icon} ${a.label}</span>`).join("");
+  await streamReport();
 
-  document.getElementById("bericht-empty").style.display="none";
-  document.getElementById("bericht-content").style.display="block";
+  status.innerHTML = "✓ FERTIG";
+  status.style.background = "#0A2A1A";
+  status.style.color = "#27AE60";
+  status.style.border = "1px solid #27AE60";
+  document.getElementById("start-btn").disabled = false;
+  isRunning = false;
 
-  const container = document.getElementById("bericht-stream-container");
-
-  for(const area of areas){
-    const r = results[area.id];
-    if(!r) continue;
-    const pm = PM[r.prio]||PM.MITTEL;
-
-    // Create area block
-    const block = document.createElement("div");
-    block.className="stream-area";
-    block.innerHTML=`
-      <div class="stream-area-header" style="border-left-color:${pm.c}">
-        <div class="stream-area-title">
-          <span>${area.icon}</span>
-          <span>${area.label}</span>
-        </div>
-        <span class="prio-tag" style="background:${pm.bg};color:${pm.c};border:1px solid ${pm.border}">${r.prio}</span>
-      </div>
-      <div class="stream-body">
-        <div class="generating" id="gen-${area.id}"><div class="gen-dot"></div>Bericht wird generiert...</div>
-        <div class="md-content" id="md-${area.id}"></div>
-      </div>`;
-    container.appendChild(block);
-    block.scrollIntoView({behavior:"smooth", block:"end"});
-
-    await streamArea(area, r);
-  }
+  switchTab("bericht");
+  log("", "");
+  log("✓ Analyse abgeschlossen", "#27AE60");
 }
 
-async function streamArea(area, result){
-  const genEl = document.getElementById("gen-"+area.id);
-  const mdEl  = document.getElementById("md-"+area.id);
+// ── STREAM REPORT ─────────────────────────────────────────────────────────
+async function streamReport(){
+  const mdEl = document.getElementById("md-content");
+  const genEl = document.getElementById("gen-indicator");
   let rawText = "";
 
   try{
-    const resp = await fetch("/api/fullreport_stream",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
+    const resp = await fetch("/api/kv_check_stream", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
       body: JSON.stringify({
-        api_key: getKey(),
-        area_id: area.id,
-        area_text: result.text,
+        api_key:  getKey(),
+        kv_id:    selectedKv.id,
+        kv_label: selectedKv.label,
+        kv_year:  selectedKv.year,
       })
     });
-    if(!resp.ok) throw new Error("Server "+resp.status);
+    if(!resp.ok) throw new Error("Server " + resp.status);
 
     const reader = resp.body.getReader();
     const dec = new TextDecoder();
-    let buf="";
-
-    genEl.style.display="none";
+    let buf = "";
+    genEl.style.display = "none";
 
     while(true){
-      const {done,value} = await reader.read();
+      const {done, value} = await reader.read();
       if(done) break;
-      buf += dec.decode(value,{stream:true});
+      buf += dec.decode(value, {stream:true});
       const lines = buf.split("\n");
       buf = lines.pop();
       for(const line of lines){
         if(line.startsWith("data: ")){
           try{
-            const evt=JSON.parse(line.slice(6));
-            if(evt.text){ rawText+=evt.text; mdEl.innerHTML=renderMd(rawText); mdEl.scrollIntoView({behavior:"smooth",block:"end"}); }
-            if(evt.done){ addSources(mdEl, area); }
-            if(evt.error){ mdEl.innerHTML+=`<p style="color:#E74C3C">Fehler: ${evt.error}</p>`; }
+            const evt = JSON.parse(line.slice(6));
+            if(evt.text){
+              rawText += evt.text;
+              mdEl.innerHTML = renderMd(rawText);
+              mdEl.scrollIntoView({behavior:"smooth", block:"end"});
+            }
+            if(evt.error){
+              mdEl.innerHTML += `<p style="color:#E74C3C">Fehler: ${evt.error}</p>`;
+            }
           }catch(e){}
         }
       }
     }
   }catch(e){
-    genEl.style.display="none";
-    mdEl.innerHTML=`<p style="color:#E74C3C">Fehler: ${e.message}</p>`;
+    genEl.style.display = "none";
+    mdEl.innerHTML += `<p style="color:#E74C3C">Verbindungsfehler: ${e.message}</p>`;
   }
 }
 
+// ── MARKDOWN RENDERER ─────────────────────────────────────────────────────
 function renderMd(text){
-  return text
-    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
-    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/^- (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
-    .replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>')
-    .replace(/\n\n/g,'</p><p>')
-    .replace(/^(?!<[hup])/gm,'')
-    .split('\n').map(l=>l.match(/^<(h[23]|ul|li)/)? l:`<p>${l}</p>`)
-    .join('')
-    .replace(/<p><\/p>/g,'')
-    .replace(/<p>(<[hul])/g,'$1')
-    .replace(/(<\/[hul][^>]*>)<\/p>/g,'$1');
+  const lines = text.split("\n");
+  let html = "";
+  let inUl = false, inOl = false;
+
+  for(let i=0; i<lines.length; i++){
+    let l = lines[i];
+
+    // Close lists
+    if(inUl && !l.match(/^[-*] /)){html+="</ul>"; inUl=false;}
+    if(inOl && !l.match(/^\d+\. /)){html+="</ol>"; inOl=false;}
+
+    if(l.startsWith("## ")){
+      html+=`<h2>${fmt(l.slice(3))}</h2>`;
+    } else if(l.startsWith("### ")){
+      html+=`<h3>${fmt(l.slice(4))}</h3>`;
+    } else if(l.startsWith("#### ")){
+      html+=`<h4>${fmt(l.slice(5))}</h4>`;
+    } else if(l.startsWith("- ALT") || l.startsWith("* ALT")){
+      html+=`<div class="alt-block">${fmt(l.slice(2))}</div>`;
+    } else if(l.startsWith("- NEU") || l.startsWith("* NEU")){
+      html+=`<div class="neu-block">${fmt(l.slice(2))}</div>`;
+    } else if(l.startsWith("- BEWERTUNG: Wesentlich") || l.startsWith("* BEWERTUNG: Wesentlich")){
+      html+=`<div class="bewertung-w">${fmt(l.slice(2))}</div>`;
+    } else if(l.startsWith("- BEWERTUNG:") || l.startsWith("* BEWERTUNG:")){
+      html+=`<div class="bewertung-n">${fmt(l.slice(2))}</div>`;
+    } else if(l.match(/^[-*] /)){
+      if(!inUl){html+="<ul>";inUl=true;}
+      html+=`<li>${fmt(l.slice(2))}</li>`;
+    } else if(l.match(/^\d+\. /)){
+      if(!inOl){html+="<ol>";inOl=true;}
+      html+=`<li>${fmt(l.replace(/^\d+\. /,""))}</li>`;
+    } else if(l.startsWith("---")){
+      html+="<hr>";
+    } else if(l.trim()===""){
+      html+="";
+    } else {
+      html+=`<p>${fmt(l)}</p>`;
+    }
+  }
+  if(inUl) html+="</ul>";
+  if(inOl) html+="</ol>";
+  return html;
 }
 
-function addSources(el, area){
-  const sourceMap = {
-    kv:   ["WKO Kollektivvertragsrecht (wko.at)","AK Österreich – Arbeitsrecht (arbeiterkammer.at)","ÖGB Kollektivvertragsverhandlungen (oegb.at)"],
-    elda: ["ÖGK ELDA Portal (elda.at)","Sozialversicherung Österreich (sozialversicherung.at)","ELDA Transfer Webservice Dokumentation"],
-    bgbl: ["Rechtsinformationssystem des Bundes (ris.bka.gv.at)","Bundesgesetzblatt Österreich (bgbl.at)","Parlamentarische Materialien (parlament.gv.at)"],
-    eu:   ["EUR-Lex – EU-Recht (eur-lex.europa.eu)","BMJ Österreich – eIDAS Umsetzung (bmj.gv.at)","EU-Kommission Pay Transparency Directive"],
-  };
-  const sources = sourceMap[area.id]||[];
-  if(!sources.length) return;
-  const div = document.createElement("div");
-  div.className="sources";
-  div.innerHTML=`<div class="sources-title">Quellen & Referenzen</div>`+
-    sources.map(s=>`<div class="source-item">${s}</div>`).join("");
-  el.appendChild(div);
+function fmt(t){
+  return t
+    .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g,"<em>$1</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
 }
 </script>
 </body>
