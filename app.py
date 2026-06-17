@@ -9,7 +9,7 @@ app = Flask(__name__, static_folder="static")
 CORS(app)
 
 
-def call_claude(user_msg, sys_msg, api_key):
+def call_claude(user_msg, sys_msg, api_key, max_tokens=1200):
     response = requests.post(
         "https://api.anthropic.com/v1/messages",
         headers={
@@ -19,11 +19,11 @@ def call_claude(user_msg, sys_msg, api_key):
         },
         json={
             "model": "claude-sonnet-4-6",
-            "max_tokens": 1000,
+            "max_tokens": max_tokens,
             "system": sys_msg,
             "messages": [{"role": "user", "content": user_msg}]
         },
-        timeout=60
+        timeout=90
     )
     response.raise_for_status()
     data = response.json()
@@ -31,32 +31,18 @@ def call_claude(user_msg, sys_msg, api_key):
 
 
 def extract_json(text):
-    """Robustly extract JSON from text that may contain extra content."""
-    # Remove markdown code blocks
     text = re.sub(r'```json\s*', '', text)
     text = re.sub(r'```\s*', '', text)
     text = text.strip()
-    # Try direct parse first
-    try:
-        return json.loads(text)
-    except Exception:
-        pass
-    # Find JSON object - match from first { to last }
     start = text.find('{')
     end = text.rfind('}')
-    if start != -1 and end != -1 and end > start:
-        try:
-            return json.loads(text[start:end+1])
-        except Exception:
-            pass
-    # Last resort: try to fix common issues
+    if start == -1 or end == -1 or end <= start:
+        raise ValueError(f"Kein JSON gefunden: {text[:300]}")
+    json_str = text[start:end+1]
     try:
-        fixed = text[start:end+1] if start != -1 else text
-        fixed = fixed.replace('\n', ' ').replace('\r', '')
-        return json.loads(fixed)
-    except Exception:
-        pass
-    raise ValueError(f"Kein gültiges JSON. Antwort: {text[:200]}")
+        return json.loads(json_str)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"JSON Fehler: {e} | Text: {json_str[:300]}")
 
 
 @app.route("/")
@@ -70,20 +56,17 @@ def research_direct():
     api_key = data.get("api_key", "").strip()
     if not api_key.startswith("sk-ant-"):
         return jsonify({"error": "Ungültiger API Key"}), 401
-
     mode = data.get("mode", "research")
-
+    max_tokens = 2500 if mode == "report" else 1200
     try:
-        text = call_claude(data["user_msg"], data["sys_msg"], api_key)
-
+        text = call_claude(data["user_msg"], data["sys_msg"], api_key, max_tokens)
         if mode == "report":
             parsed = extract_json(text)
             return jsonify(parsed)
         else:
             return jsonify({"text": text})
-
     except requests.HTTPError as e:
-        return jsonify({"error": f"Anthropic API Fehler {e.response.status_code}: {e.response.text[:200]}"}), 500
+        return jsonify({"error": f"API Fehler {e.response.status_code}: {e.response.text[:200]}"}), 500
     except ValueError as e:
         return jsonify({"error": str(e)}), 500
     except Exception as e:
