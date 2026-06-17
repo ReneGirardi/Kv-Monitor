@@ -1,1 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KV-Monitor Agent</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0D1B2A;color:#F7F5F0;font-family:-apple-system,system-ui,sans-serif;min-height:100vh}
+  header{background:#1A2E45;border-bottom:1px solid #2E4060;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+  .logo{width:36px;height:36px;background:#C0392B;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px}
+  .badge-running{background:#243B55;color:#F39C12;border:1px solid #F39C12}
+  .badge-done{background:#0F2D1A;color:#27AE60;border:1px solid #27AE60}
+  .badge-error{background:#2D1515;color:#E74C3C;border:1px solid #E74C3C}
+  main{max-width:860px;margin:0 auto;padding:20px 14px}
+  #idle-screen{text-align:center;padding:48px 12px}
+  #idle-screen h1{font-size:22px;font-weight:800;margin:12px 0 10px}
+  #idle-screen p{color:#8A99AA;font-size:14px;line-height:1.6;max-width:380px;margin:0 auto 26px}
+  .areas-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px;margin:0 auto 28px;text-align:left}
+  .area-pill{background:#1A2E45;border:1px solid #2E4060;border-radius:8px;padding:10px 13px;display:flex;align-items:center;gap:9px}
+  .area-pill-label{font-size:12px;font-weight:600}
+  .btn-primary{background:#C0392B;color:#fff;border:none;padding:13px 32px;font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .btn-primary:active{background:#E74C3C}
+  .tabs{display:flex;border-bottom:1px solid #2E4060;margin-bottom:18px;overflow-x:auto}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;color:#8A99AA;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+  .tab.active{border-bottom-color:#C0392B;color:#F7F5F0}
+  .card{background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:16px;margin-bottom:12px}
+  .card-label{font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+  .risk-banner{border-radius:10px;padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+  .sofort-box{background:#1A1000;border:1px solid #F39C12;border-radius:10px;padding:16px;margin-bottom:16px}
+  .sofort-label{font-size:10px;color:#F39C12;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+  .sofort-item{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px}
+  .sofort-num{min-width:20px;height:20px;background:#F39C12;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0D1B2A;margin-top:1px;flex-shrink:0}
+  .area-card{background:#111E2E;border:1px solid #2E4060;border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left-width:3px;border-left-style:solid}
+  .area-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .area-card-info{display:flex;align-items:center;gap:9px}
+  .prio-tag{font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
+  .detail-grid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:600px){.detail-grid{grid-template-columns:1fr 1fr 1fr}}
+  .detail-label{font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+  .detail-val{font-size:12px;line-height:1.5;color:#C5D0DC}
+  .email-box{background:#1A2E45;border:1px solid #2E4060;border-radius:10px;padding:16px;margin-top:10px}
+  .email-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  input[type=email]{flex:1;min-width:180px;background:#0D1B2A;border:1px solid #2E4060;border-radius:6px;padding:9px 12px;color:#F7F5F0;font-size:13px;outline:none;-webkit-appearance:none}
+  .btn-red{background:#C0392B;color:#fff;border:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .btn-sec{background:#243B55;color:#F7F5F0;border:1px solid #2E4060;padding:9px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .rerun{text-align:center;margin-top:22px}
+  .terminal{background:#080E16;border-radius:10px;border:1px solid #2E4060;padding:14px;font-family:'Courier New',monospace;font-size:12px;min-height:340px;max-height:480px;overflow-y:auto}
+  .log-ts{color:#3D5066;margin-right:8px}
+  .raw-text{background:#080E16;border-radius:7px;padding:12px;font-size:12px;line-height:1.7;color:#A8B8C8;white-space:pre-wrap;border-top:1px solid #2E4060;margin-top:10px;word-break:break-word}
+  .waiting{text-align:center;padding:60px 20px;color:#8A99AA}
+  .error-box{background:#2D1515;border:1px solid #E74C3C;border-radius:10px;padding:16px;color:#E74C3C;margin-top:12px;font-size:13px}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .cursor{animation:blink 1s infinite;color:#F39C12}
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="logo">⚡</div>
+    <div>
+      <div style="font-weight:700;font-size:15px">KV-Monitor Agent</div>
+      <div style="font-size:11px;color:#8A99AA">Hotellerie & Gastronomie · Payroll Compliance AT</div>
+    </div>
+  </div>
+  <div id="status-badge"></div>
+</header>
 
+<main>
+  <div id="idle-screen">
+    <div style="font-size:42px">🔍</div>
+    <h1>Compliance-Check starten</h1>
+    <p>Der Agent recherchiert autonom in WKO, BGBl, ÖGK und EUR-Lex und liefert einen priorisierten Report.</p>
+    <div class="areas-grid">
+      <div class="area-pill"><span>🏨</span><div class="area-pill-label">KV Hotellerie & Gastronomie</div></div>
+      <div class="area-pill"><span>📡</span><div class="area-pill-label">ELDA / Transfer Webservice</div></div>
+      <div class="area-pill"><span>⚖️</span><div class="area-pill-label">BGBl Arbeitsrecht</div></div>
+      <div class="area-pill"><span>🇪🇺</span><div class="area-pill-label">EU – eIDAS & Pay Transparency</div></div>
+    </div>
+    <button class="btn-primary" onclick="startAgent()">⚡ Jetzt prüfen</button>
+  </div>
+
+  <div id="main-ui" style="display:none">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('report')">📋 Report</button>
+      <button class="tab" onclick="switchTab('logs')">🖥 Agent-Log</button>
+      <button class="tab" onclick="switchTab('areas')">🔬 Detailanalyse</button>
+    </div>
+    <div id="tab-report">
+      <div id="report-loading" class="waiting"><div style="font-size:28px;margin-bottom:10px">⚙️</div>Agent läuft – wechsle zu „Agent-Log" für Live-Updates</div>
+      <div id="report-content" style="display:none"></div>
+    </div>
+    <div id="tab-logs" style="display:none">
+      <div class="terminal" id="terminal"><span class="cursor">█</span></div>
+    </div>
+    <div id="tab-areas" style="display:none">
+      <div id="areas-content"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const PM = {
+  KRITISCH:{c:"#E74C3C",bg:"#2D1515",emoji:"🔴"},
+  HOCH:{c:"#F39C12",bg:"#2D2010",emoji:"🟠"},
+  MITTEL:{c:"#3498DB",bg:"#101D2D",emoji:"🔵"},
+  INFO:{c:"#8A99AA",bg:"#151D25",emoji:"⚪"}
+};
+
+let areas = [];
+let results = {};
+let currentReport = null;
+
+function ts(){return new Date().toLocaleTimeString("de-AT",{hour12:false})}
+
+function addLog(text,color){
+  const t=document.getElementById("terminal");
+  const cursor=t.querySelector(".cursor");
+  if(!text){const sp=document.createElement("div");sp.style.height="8px";t.insertBefore(sp,cursor);t.scrollTop=t.scrollHeight;return;}
+  const line=document.createElement("div");
+  line.innerHTML=`<span class="log-ts">${ts()}</span><span style="color:${color||"#8A99AA"}">${text}</span>`;
+  t.insertBefore(line,cursor);
+  t.scrollTop=t.scrollHeight;
+}
+
+function switchTab(name){
+  ["report","logs","areas"].forEach(n=>{document.getElementById("tab-"+n).style.display=n===name?"block":"none"});
+  document.querySelectorAll(".tab").forEach((b,i)=>{b.classList.toggle("active",["report","logs","areas"][i]===name)});
+}
+
+function refreshAreas(){
+  let html="";
+  areas.forEach(a=>{
+    const r=results[a.id];
+    const m=r?(PM[r.prio]||PM.MITTEL):null;
+    html+=`<div class="area-card" style="border-left-color:${m?m.c:"#2E4060"}">
+      <div class="area-card-top">
+        <div class="area-card-info"><span style="font-size:18px">${a.icon}</span><div style="font-weight:700;font-size:13px">${a.label}</div></div>
+        ${r?`<span class="prio-tag" style="background:${m.bg};color:${m.c}">${m.emoji} ${r.prio}</span>`:`<span style="color:#8A99AA;font-size:12px">${document.getElementById("main-ui").style.display!=="none"?"⏳ Läuft...":"–"}</span>`}
+      </div>
+      ${r?`<div class="raw-text">${r.text}</div>`:""}
+    </div>`;
+  });
+  document.getElementById("areas-content").innerHTML=html;
+}
+
+function renderReport(rep){
+  const m=PM[rep.gesamtrisiko]||PM.MITTEL;
+  let bereiche="";
+  rep.bereiche.forEach(b=>{
+    const a=areas.find(x=>x.id===b.id)||{};
+    const bm=PM[b.prio]||PM.MITTEL;
+    bereiche+=`<div class="area-card" style="border-left-color:${bm.c}">
+      <div class="area-card-top">
+        <div class="area-card-info"><span style="font-size:18px">${a.icon||""}</span><div><div style="font-weight:700;font-size:13px">${b.headline}</div><div style="font-size:11px;color:#8A99AA;margin-top:2px">${a.label||""}</div></div></div>
+        <span class="prio-tag" style="background:${bm.bg};color:${bm.c};border:1px solid ${bm.c}40">${bm.emoji} ${b.prio}</span>
+      </div>
+      <div class="detail-grid">
+        <div><div class="detail-label">Befund</div><div class="detail-val">${b.befund}</div></div>
+        <div><div class="detail-label">Auswirkung</div><div class="detail-val">${b.auswirkung}</div></div>
+        <div><div class="detail-label">Nächste Aktion</div><div class="detail-val">${b.aktion}</div><div style="font-size:11px;font-weight:700;margin-top:5px;color:${bm.c}">⏱ ${b.deadline}</div></div>
+      </div>
+    </div>`;
+  });
+  let sofort="";
+  rep.sofort.forEach((s,i)=>{sofort+=`<div class="sofort-item"><div class="sofort-num">${i+1}</div><div style="font-size:13px;line-height:1.5">${s}</div></div>`;});
+
+  document.getElementById("report-content").innerHTML=`
+    <div class="risk-banner" style="background:${m.bg};border:1px solid ${m.c}">
+      <div><div style="font-size:10px;color:#8A99AA;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">Gesamtrisiko</div><div style="font-size:24px;font-weight:800;color:${m.c}">${m.emoji} ${rep.gesamtrisiko}</div></div>
+      <div style="text-align:right;font-size:12px"><div style="color:#8A99AA;margin-bottom:3px">Nächste Prüfung</div><div style="font-weight:600">${rep.naechste_pruefung}</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px"><div class="card-label">Executive Summary</div><p style="font-size:13px;line-height:1.7">${rep.zusammenfassung}</p></div>
+    <div class="sofort-box"><div class="sofort-label">⚡ Sofortmaßnahmen</div>${sofort}</div>
+    ${bereiche}
+    <div class="email-box">
+      <div class="card-label">📧 Report versenden</div>
+      <div class="email-row">
+        <input type="email" id="email-input" placeholder="empfaenger@firma.at">
+        <button class="btn-red" onclick="sendEmail()">📧 Senden</button>
+        <button class="btn-sec" id="copy-btn" onclick="copyReport()">📋 Kopieren</button>
+      </div>
+    </div>
+    <div class="rerun"><button class="btn-primary" onclick="startAgent()">↺ Erneut prüfen</button></div>`;
+  document.getElementById("report-loading").style.display="none";
+  document.getElementById("report-content").style.display="block";
+}
+
+function buildEmailText(){
+  if(!currentReport)return"";
+  const d=new Date().toLocaleDateString("de-AT");
+  let t=`KV-Monitor Report – ${d}\nGesamtrisiko: ${currentReport.gesamtrisiko}\n\n${currentReport.zusammenfassung}\n\nSOFORTMASSNAHMEN\n`;
+  currentReport.sofort.forEach((s,i)=>{t+=`${i+1}. ${s}\n`;});
+  t+="\nBEREICHE\n";
+  currentReport.bereiche.forEach(b=>{t+=`\n[${b.prio}] ${b.headline}\nBefund: ${b.befund}\nAuswirkung: ${b.auswirkung}\nAktion: ${b.aktion} | ${b.deadline}\n`;});
+  t+=`\nNächste Prüfung: ${currentReport.naechste_pruefung}\n\n— KV-Monitor Agent`;
+  return t;
+}
+
+function sendEmail(){
+  const addr=document.getElementById("email-input")?.value||"";
+  const sub=encodeURIComponent(`KV-Monitor Report ${new Date().toLocaleDateString("de-AT")} – ${currentReport?.gesamtrisiko}`);
+  window.location.href=`mailto:${encodeURIComponent(addr)}?subject=${sub}&body=${encodeURIComponent(buildEmailText())}`;
+}
+
+async function copyReport(){
+  await navigator.clipboard.writeText(buildEmailText());
+  const btn=document.getElementById("copy-btn");
+  if(btn){btn.textContent="✓ Kopiert";btn.style.color="#27AE60";setTimeout(()=>{btn.textContent="📋 Kopieren";btn.style.color="";},2000);}
+}
+
+async function startAgent(){
+  results={};currentReport=null;areas=[];
+  document.getElementById("idle-screen").style.display="none";
+  document.getElementById("main-ui").style.display="block";
+  document.getElementById("terminal").innerHTML='<span class="cursor">█</span>';
+  document.getElementById("report-loading").style.display="block";
+  document.getElementById("report-content").style.display="none";
+  document.getElementById("report-content").innerHTML="";
+  document.getElementById("areas-content").innerHTML="";
+  document.getElementById("status-badge").innerHTML='<span class="badge badge-running">● AGENT AKTIV</span>';
+  switchTab("logs");
+
+  addLog("▶ KV-Monitor Agent gestartet","#7EC8E3");
+  addLog("Datum: "+new Date().toLocaleDateString("de-AT"),"#7EC8E3");
+  addLog("─────────────────────────────","#2E4060");
+
+  // Load areas
+  try{
+    const r=await fetch("/api/areas");
+    areas=await r.json();
+  }catch(e){areas=[
+    {id:"kv",icon:"🏨",label:"KV Hotellerie & Gastronomie"},
+    {id:"elda",icon:"📡",label:"ELDA / Transfer Webservice"},
+    {id:"bgbl",icon:"⚖️",label:"BGBl Arbeitsrecht"},
+    {id:"eu",icon:"🇪🇺",label:"EU – eIDAS & Pay Transparency"}
+  ];}
+
+  for(const area of areas){
+    addLog("","");
+    addLog(area.icon+" "+area.label,"#F39C12");
+    addLog("→ Web-Recherche läuft...","#8A99AA");
+    try{
+      const r=await fetch("/api/research",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({area_id:area.id})});
+      const data=await r.json();
+      if(data.error)throw new Error(data.error);
+      results[area.id]={text:data.text,prio:data.prio};
+      refreshAreas();
+      const col=data.prio==="KRITISCH"?"#E74C3C":data.prio==="HOCH"?"#F39C12":"#27AE60";
+      addLog("✓ Abgeschlossen – Priorität: "+data.prio,col);
+    }catch(e){
+      addLog("✗ Fehler: "+e.message,"#E74C3C");
+      results[area.id]={text:"Fehler: "+e.message,prio:"INFO"};
+      refreshAreas();
+    }
+  }
+
+  addLog("","");
+  addLog("─────────────────────────────","#2E4060");
+  addLog("📋 Executive Report wird generiert...","#7EC8E3");
+
+  try{
+    const r=await fetch("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({results})});
+    const rep=await r.json();
+    if(rep.error)throw new Error(rep.error);
+    currentReport=rep;
+    renderReport(rep);
+    document.getElementById("status-badge").innerHTML='<span class="badge badge-done">✓ FERTIG</span>';
+    addLog("✓ Report fertig – "+rep.gesamtrisiko,rep.gesamtrisiko==="KRITISCH"?"#E74C3C":"#27AE60");
+    addLog("▶ Agent beendet","#7EC8E3");
+    switchTab("report");
+  }catch(e){
+    addLog("✗ Report-Fehler: "+e.message,"#E74C3C");
+    document.getElementById("report-loading").innerHTML=`<div class="error-box"><strong>Fehler:</strong> ${e.message}</div>`;
+    document.getElementById("status-badge").innerHTML='<span class="badge badge-error">✗ FEHLER</span>';
+  }
+}
+</script>
+</body>
+</html>
