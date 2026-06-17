@@ -200,20 +200,31 @@ function switchTab(name){
 }
 
 // ── Claude API call (direct from browser via server proxy) ──────────────────
-async function callClaude(userMsg, sysMsg){
-  const r = await fetch("/api/research_direct", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      user_msg: userMsg,
-      sys_msg: sysMsg,
-      api_key: getApiKey()
-    })
-  });
-  if(!r.ok){ const e=await r.text(); throw new Error(`API ${r.status}: ${e.slice(0,120)}`); }
-  const d = await r.json();
-  if(d.error) throw new Error(d.error);
-  return d.text;
+async function callClaude(userMsg, sysMsg, mode="research"){
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 90000);
+  try {
+    const r = await fetch("/api/research_direct", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        user_msg: userMsg,
+        sys_msg: sysMsg,
+        api_key: getApiKey(),
+        mode: mode
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if(!r.ok){ const e=await r.text(); throw new Error(`API ${r.status}: ${e.slice(0,200)}`); }
+    const d = await r.json();
+    if(d.error) throw new Error(d.error);
+    return mode === "report" ? d : d.text;
+  } catch(e) {
+    clearTimeout(timeout);
+    if(e.name === "AbortError") throw new Error("Timeout – Anfrage dauerte zu lang. Bitte erneut versuchen.");
+    throw e;
+  }
 }
 
 function getPrio(text){
@@ -349,11 +360,11 @@ async function startAgent(){
 
   try{
     const combined=AREAS.map(a=>`=== ${a.label} ===\nPrio: ${results[a.id]?.prio}\n${results[a.id]?.text}`).join("\n\n");
-    const raw = await callClaude(
+    const json = await callClaude(
       `Erstelle Executive Report aus:\n\n${combined}\n\nAntworte NUR als reines JSON ohne Backticks:\n{"zusammenfassung":"...","gesamtrisiko":"KRITISCH|HOCH|MITTEL|INFO","bereiche":[{"id":"kv|elda|bgbl|eu","prio":"...","headline":"...","befund":"...","auswirkung":"...","aktion":"...","deadline":"..."}],"sofort":["...","...","..."],"naechste_pruefung":"..."}`,
-      "Senior Payroll Compliance Officer Österreich. Antworte NUR als reines JSON, kein Text davor oder danach, keine Backticks."
+      "Senior Payroll Compliance Officer Österreich. Antworte NUR als reines JSON, kein Text davor oder danach, keine Backticks.",
+      "report"
     );
-    const json=JSON.parse(raw.replace(/```json|```/g,"").trim());
     currentReport=json;
     renderReport(json);
     document.getElementById("status-badge").innerHTML='<span class="badge badge-done">✓ FERTIG</span>';
